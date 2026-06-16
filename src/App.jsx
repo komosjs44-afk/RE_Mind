@@ -124,6 +124,8 @@ export default function App() {
                   prediction={burnoutPrediction[scenario]}
                   dataSources={dataSourceSummary[scenario]}
                   interventions={allInterventions}
+                  dailyEvents={dailyEvents[scenario]}
+                  healthData={healthData[scenario]}
                   onGoHome={() => setPage('home')}
                 />
               )}

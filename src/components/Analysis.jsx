@@ -1,9 +1,10 @@
 import WeeklyRiskStory from './analysis/WeeklyRiskStory';
+import DailyScheduleRiskDiagnosis from './analysis/DailyScheduleRiskDiagnosis';
 import BehaviorImpactRanking from './analysis/BehaviorImpactRanking';
 import NextWeekSimulation from './analysis/NextWeekSimulation';
 import RecommendedActionCTA from './analysis/RecommendedActionCTA';
 
-export default function Analysis({ prediction, dataSources, interventions, onGoHome }) {
+export default function Analysis({ prediction, dataSources, interventions, dailyEvents = [], healthData, onGoHome }) {
   return (
     <main className="page no-scrollbar h-[calc(100%-112px)] overflow-y-auto pb-24">
       <section className="mx-4 mt-4 rounded-[28px] bg-navy p-5 text-white shadow-sm">
@@ -14,6 +15,7 @@ export default function Analysis({ prediction, dataSources, interventions, onGoH
         </p>
       </section>
       <WeeklyRiskStory />
+      <DailyScheduleRiskDiagnosis events={dailyEvents} prediction={prediction} healthData={healthData} interventions={interventions} />
       <BehaviorImpactRanking dataSources={dataSources} />
       <NextWeekSimulation prediction={prediction} />
       <RecommendedActionCTA interventions={interventions} onGoHome={onGoHome} />
