@@ -1,7 +1,5 @@
 import Button from '../ui/Button';
 
-// remind-logo.png를 src/assets/images/ 에 추가하면 자동으로 인식됩니다.
-// 파일이 없는 동안에는 아래 "R" fallback 마크가 표시됩니다.
 const logoModules = import.meta.glob('../../assets/images/remind-logo.{png,jpg,jpeg,svg}', {
   eager: true,
   import: 'default',
@@ -13,7 +11,7 @@ export default function StartScreen({ onStart }) {
     <div className="relative flex-1 bg-bg">
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse at 50% 44%, transparent 55%, rgba(43,47,56,0.05) 100%)' }}
+        style={{ background: 'radial-gradient(ellipse at 50% 44%, transparent 55%, rgba(17,24,39,0.05) 100%)' }}
       />
 
       <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2">

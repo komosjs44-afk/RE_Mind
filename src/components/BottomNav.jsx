@@ -13,7 +13,7 @@ export default function BottomNav({ page, setPage }) {
         return (
           <button
             key={id}
-            className={`flex flex-col items-center justify-center gap-1 rounded-lg transition-colors ${active ? 'bg-ai-soft text-ai' : 'text-text-secondary/70'}`}
+            className={`flex flex-col items-center justify-center gap-1 rounded-[18px] transition-all active:scale-[0.98] ${active ? 'bg-ai-soft text-ai' : 'text-text-secondary/70'}`}
             onClick={() => setPage(id)}
           >
             <i className={`ti ti-${icon} text-[22px]`} />

@@ -39,7 +39,7 @@ export default function RiskRadial({ score, targetScore, size = 152, strokeWidth
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={`text-[38px] font-bold leading-none ${dark ? 'text-white' : 'text-text-primary'}`}>{score}</span>
-        <span className={`mt-1 text-[10px] font-medium uppercase tracking-wide ${dark ? 'text-white/60' : 'text-text-secondary'}`}>Burnout Risk</span>
+        <span className={`mt-1 text-[10px] font-medium ${dark ? 'text-white/60' : 'text-text-secondary'}`}>번아웃 위험</span>
       </div>
     </div>
   );

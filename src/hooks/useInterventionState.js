@@ -95,7 +95,7 @@ export function useInterventionState({ baseInterventions, showToast, closeToast 
       dismissedAt: undefined,
       snoozeUntil: undefined,
     });
-    showToast({ message: 'AI 제안을 오늘 일정에 반영했어요.' });
+    showToast({ message: 'AI 제안을 오늘 일정에 반영했습니다.' });
   };
 
   const moveIntervention = (id, nextTime) => {
@@ -110,7 +110,7 @@ export function useInterventionState({ baseInterventions, showToast, closeToast 
       snoozeUntil: undefined,
       dismissedAt: undefined,
     });
-    showToast({ message: `${nextTime} 일정으로 이동했어요. 캘린더에 반영됩니다.` });
+    showToast({ message: `${nextTime} 일정으로 이동했습니다. 캘린더에 반영됩니다.` });
   };
 
   const delayIntervention = (id) => {
@@ -127,7 +127,7 @@ export function useInterventionState({ baseInterventions, showToast, closeToast 
       previousStatus: target.status,
       dismissedAt: undefined,
     });
-    showToast({ message: `${nextTime}에 다시 볼 수 있게 15분 뒤로 미뤘어요.` });
+    showToast({ message: `${nextTime}에 다시 볼 수 있게 15분 뒤로 미뤘습니다.` });
   };
 
   const restoreDismissedIntervention = (id, previousState = {}) => {
@@ -154,7 +154,7 @@ export function useInterventionState({ baseInterventions, showToast, closeToast 
     });
 
     showToast({
-      message: '오늘은 이 행동을 제외했습니다.',
+      message: '오늘은 이 개입을 제외했습니다.',
       actionLabel: '되돌리기',
       onAction: () => restoreDismissedIntervention(id, { ...previousState, status: previousStatus }),
     });

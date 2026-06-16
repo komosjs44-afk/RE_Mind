@@ -4,8 +4,7 @@ import { getRiskTier } from '../../utils/riskTier';
 const WIDTH = 300;
 const HEIGHT = 110;
 const PADDING = 10;
-const PEAK_DAYS = ['수', '목'];
-
+const PEAK_DAYS = ['수', '목', '오늘'];
 const dotFill = { healthy: 'fill-healthy', warning: 'fill-warning', risk: 'fill-risk' };
 
 export default function WeeklyRiskStory() {
@@ -19,13 +18,13 @@ export default function WeeklyRiskStory() {
   const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
 
   return (
-    <section className="mx-4 mt-4 rounded-lg border border-border bg-card p-5 shadow-sm">
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">Weekly Risk Story</span>
-      <h2 className="mt-2 text-[16px] font-semibold leading-snug text-text-primary">
-        이번 주 수요일과 목요일에 위험도가 급상승했어요
+    <section className="mx-4 mt-3 rounded-[24px] border border-border bg-card p-5 shadow-sm">
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">이번 주 위험 변화</span>
+      <h2 className="mt-2 text-[17px] font-semibold leading-snug text-text-primary">
+        수요일, 목요일, 오늘 오후에 위험도가 반복 상승했습니다
       </h2>
-      <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">
-        연속 회의와 수면 감소가 동시에 발생한 구간이에요.
+      <p className="mt-2 text-[13px] leading-relaxed text-text-secondary">
+        연속 회의와 수면 감소가 동시에 발생한 구간에서 위험 점수가 뚜렷하게 올라갔습니다.
       </p>
 
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="mt-4 w-full" style={{ height: HEIGHT }}>

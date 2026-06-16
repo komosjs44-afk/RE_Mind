@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { aiInterventions, burnoutPrediction, calendarData, dailyEvents, healthData } from './data/schedule';
+import { aiInterventions, burnoutPrediction, calendarData, dailyEvents, healthData, screenTimeData, dataSourceSummary } from './data/schedule';
 import { useInterventionState } from './hooks/useInterventionState';
 import { parseTime } from './utils/time';
 import StartScreen from './components/onboarding/StartScreen';
@@ -92,6 +92,8 @@ export default function App() {
                 <Home
                   prediction={burnoutPrediction[scenario]}
                   healthData={healthData[scenario]}
+                  screenData={screenTimeData[scenario]}
+                  dataSources={dataSourceSummary[scenario]}
                   dayEvents={timelineEvents}
                   primaryIntervention={primaryIntervention}
                   secondaryInterventions={secondaryInterventions}
@@ -120,8 +122,7 @@ export default function App() {
               {page === 'anal' && (
                 <Analysis
                   prediction={burnoutPrediction[scenario]}
-                  healthData={healthData[scenario]}
-                  calendarData={calendarData[scenario]}
+                  dataSources={dataSourceSummary[scenario]}
                   interventions={allInterventions}
                   onGoHome={() => setPage('home')}
                 />
@@ -144,7 +145,7 @@ function buildNotifications({ prediction, calendar, interventions }) {
     items.push({
       id: 'calendar-density',
       title: '오늘 회의 밀도가 높습니다.',
-      detail: `${calendar.meetingCount}개 일정과 ${calendar.continuousMeetingBlocks}개 연속 회의 블록이 감지됐어요.`,
+      detail: `${calendar.meetingCount}개 일정과 ${calendar.continuousMeetingBlocks}개 연속 회의 블록이 감지되었습니다.`,
     });
   }
 
@@ -152,7 +153,7 @@ function buildNotifications({ prediction, calendar, interventions }) {
     items.push({
       id: 'risk-score',
       title: '오후 집중 저하 가능성이 높습니다.',
-      detail: `${prediction.predictedPeakRiskTime} 구간에 회복 행동을 넣어보세요.`,
+      detail: `${prediction.predictedPeakRiskTime} 구간 전에 회복 행동을 넣어보세요.`,
     });
   }
 

@@ -1,12 +1,8 @@
 import { useState } from 'react';
+import { dataSourceSummary } from '../../data/schedule';
 
 const STORAGE_KEY = 'remind_connected_sources';
-
-const defaultSources = [
-  { source: 'Google Calendar', status: '연결됨', enabled: true, icon: 'calendar' },
-  { source: 'Samsung Health', status: '연결됨', enabled: true, icon: 'heart-rate-monitor' },
-  { source: 'Screen Time', status: '분석 가능', enabled: true, icon: 'device-mobile' },
-];
+const defaultSources = dataSourceSummary.elevated;
 
 export default function ConnectedSources() {
   const [sources, setSources] = useState(loadSources);
@@ -16,56 +12,79 @@ export default function ConnectedSources() {
     saveSources(nextSources);
   };
 
-  const toggleSource = (source) => {
+  const toggleSource = (id) => {
     updateSources(
       sources.map((item) => (
-        item.source === source
-          ? { ...item, enabled: !item.enabled, status: item.enabled ? '꺼짐' : '연결됨' }
+        item.id === id
+          ? {
+              ...item,
+              enabled: item.enabled === false,
+              status: item.enabled === false ? '샘플 데이터 기반' : '연결 해제',
+              syncState: item.enabled === false ? 'sample' : 'paused',
+            }
           : item
       )),
     );
   };
 
-  const reconnectSource = (source) => {
-    updateSources(
-      sources.map((item) => (
-        item.source === source ? { ...item, enabled: true, status: '재연결됨' } : item
-      )),
-    );
-  };
-
   return (
-    <section className="mx-4 mb-4 mt-4 rounded-lg border border-border bg-card p-5 shadow-sm">
-      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">Connected Sources</span>
-      <div className="mt-3 flex flex-col gap-3">
+    <section className="mx-4 mb-4 mt-3 rounded-[24px] border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">연동 센터</span>
+          <h2 className="mt-1 text-[17px] font-semibold text-text-primary">AI 판단에 쓰이는 데이터 출처</h2>
+        </div>
+        <span className="rounded-full bg-ai-soft px-3 py-1 text-[11px] font-semibold text-ai">
+          {sources.filter((item) => item.enabled !== false).length}개 활성
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-3">
         {sources.map((item) => (
-          <article key={item.source} className="rounded-md bg-bg p-3.5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-card text-ai">
-                <i className={`ti ti-${item.icon} text-[16px]`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-semibold text-text-primary">{item.source}</p>
-                <p className={`mt-0.5 text-[10px] font-medium ${item.enabled ? 'text-ai' : 'text-text-secondary'}`}>
-                  {item.status}
-                </p>
-              </div>
-              <button
-                className={`h-7 rounded-full px-3 text-[11px] font-medium ${item.enabled ? 'bg-ai-soft text-ai' : 'bg-card text-text-secondary'}`}
-                onClick={() => toggleSource(item.source)}
-              >
-                {item.enabled ? 'On' : 'Off'}
-              </button>
-            </div>
-            {!item.enabled && (
-              <button className="mt-2 text-[11px] font-medium text-ai" onClick={() => reconnectSource(item.source)}>
-                reconnect mock
-              </button>
-            )}
-          </article>
+          <SourceCard key={item.id} item={item} onToggle={() => toggleSource(item.id)} />
         ))}
       </div>
     </section>
+  );
+}
+
+function SourceCard({ item, onToggle }) {
+  const enabled = item.enabled !== false;
+  const stateLabel = item.syncState === 'planned' ? '연동 예정' : item.syncState === 'paused' ? '일시 중지' : item.status;
+
+  return (
+    <article className="rounded-[18px] bg-bg p-3.5">
+      <div className="flex items-center gap-3">
+        <div className={`flex h-10 w-10 flex-none items-center justify-center rounded-full bg-card ${enabled ? 'text-ai' : 'text-text-secondary'}`}>
+          <i className={`ti ti-${item.icon} text-[17px]`} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-semibold text-text-primary">{item.source}</p>
+          <p className={`mt-0.5 text-[10px] font-medium ${enabled ? 'text-ai' : 'text-text-secondary'}`}>
+            {stateLabel} · {item.lastSyncedAt}
+          </p>
+        </div>
+        <button
+          className={`h-8 rounded-full px-3 text-[11px] font-semibold transition-all active:scale-[0.98] ${enabled ? 'bg-ai-soft text-ai' : 'bg-card text-text-secondary'}`}
+          onClick={onToggle}
+        >
+          {enabled ? 'On' : 'Off'}
+        </button>
+      </div>
+
+      <p className="mt-2 text-[11px] leading-relaxed text-text-secondary">{item.note}</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {item.usedSignals.map((signal) => (
+          <span key={signal} className="rounded-full bg-card px-2 py-1 text-[10px] font-medium text-text-secondary">
+            {signal}
+          </span>
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between rounded-[14px] bg-card px-3 py-2">
+        <span className="text-[10px] font-semibold text-text-secondary">오늘 판단 영향</span>
+        <span className="text-[12px] font-semibold text-risk">{item.impactLabel}</span>
+      </div>
+    </article>
   );
 }
 
@@ -74,11 +93,18 @@ function loadSources() {
 
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : defaultSources;
+    return saved ? mergeSavedSources(JSON.parse(saved)) : defaultSources;
   } catch (error) {
     console.error('Failed to load connected sources', error);
     return defaultSources;
   }
+}
+
+function mergeSavedSources(saved) {
+  return defaultSources.map((source) => ({
+    ...source,
+    ...(saved.find((item) => item.id === source.id) || {}),
+  }));
 }
 
 function saveSources(nextSources) {

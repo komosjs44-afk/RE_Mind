@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import RiskDelta from './home/RiskDelta';
 import BottomSheet from './ui/BottomSheet';
+import Button from './ui/Button';
 
 export default function InterventionCard({
   intervention,
@@ -18,7 +19,7 @@ export default function InterventionCard({
   const timeOptions = intervention.alternatives?.length ? intervention.alternatives : ['11:30', '14:00', '17:30'];
 
   return (
-    <article className={`rounded-lg border p-4 ${isAccepted ? 'border-ai/20 bg-ai-soft' : 'border-border bg-card'} shadow-sm`}>
+    <article className={`rounded-[24px] border p-4 ${isAccepted ? 'border-ai/20 bg-ai-soft' : 'border-border bg-card'} shadow-sm`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-[14px] font-semibold text-text-primary">{intervention.title}</h3>
@@ -29,9 +30,9 @@ export default function InterventionCard({
         <RiskDelta before={currentRiskScore} after={afterRisk} />
       </div>
 
-      {isSnoozed && <p className="mt-3 text-[11px] font-semibold text-warning">다시 보기 예약됨</p>}
+      {isSnoozed && <p className="mt-3 rounded-[16px] bg-warning-soft px-3 py-2 text-[11px] font-semibold text-warning">다시 보기 예약됨</p>}
 
-      <button className="mt-3 min-h-8 text-[12px] font-medium text-ai" onClick={() => setEvidenceOpen(true)}>
+      <button className="mt-3 min-h-8 text-[12px] font-semibold text-ai transition-all active:scale-[0.98]" onClick={() => setEvidenceOpen(true)}>
         근거 보기
       </button>
 
@@ -42,24 +43,24 @@ export default function InterventionCard({
         </div>
       ) : (
         <>
-          <div className="mt-2 flex items-center gap-3">
-            <button className="min-h-8 text-[12px] font-semibold text-navy" onClick={() => acceptIntervention(intervention.id)}>
+          <div className="mt-2 grid grid-cols-4 gap-2">
+            <Button variant="text" className="min-h-10 px-2 text-[12px] text-navy" onClick={() => acceptIntervention(intervention.id)}>
               수용
-            </button>
-            <button className="min-h-8 text-[12px] font-medium text-text-secondary" onClick={() => setShowTimes((prev) => !prev)}>
-              다른 시간
-            </button>
-            <button className="min-h-8 text-[12px] font-medium text-text-secondary" onClick={() => delayIntervention(intervention.id)}>
+            </Button>
+            <Button variant="text" className="min-h-10 px-2 text-[12px]" onClick={() => setShowTimes((prev) => !prev)}>
+              이동
+            </Button>
+            <Button variant="text" className="min-h-10 px-2 text-[12px]" onClick={() => delayIntervention(intervention.id)}>
               15분 뒤
-            </button>
-            <button className="min-h-8 text-[12px] font-medium text-text-secondary/60" onClick={() => dismissIntervention(intervention.id)}>
+            </Button>
+            <Button variant="text" className="min-h-10 px-2 text-[12px]" onClick={() => dismissIntervention(intervention.id)}>
               제외
-            </button>
+            </Button>
           </div>
           {showTimes && (
-            <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-bg p-2">
+            <div className="mt-3 grid grid-cols-3 gap-2 rounded-[18px] bg-bg p-2">
               {timeOptions.map((time) => (
-                <button key={time} className="min-h-8 rounded-md bg-card text-[11px] font-semibold text-ai" onClick={() => moveIntervention(intervention.id, time)}>
+                <button key={time} className="min-h-9 rounded-[14px] bg-card text-[11px] font-semibold text-ai transition-all active:scale-[0.98]" onClick={() => moveIntervention(intervention.id, time)}>
                   {time}
                 </button>
               ))}
@@ -69,21 +70,21 @@ export default function InterventionCard({
       )}
 
       <BottomSheet open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title={intervention.title}>
-        <dl className="space-y-3">
-          <div>
-            <dt className="text-[10px] font-semibold uppercase text-text-secondary">추천 이유</dt>
-            <dd className="mt-1 text-[13px] text-text-primary">{intervention.reason}</dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-semibold uppercase text-text-secondary">근거 데이터</dt>
-            <dd className="mt-1 text-[13px] text-text-primary">{intervention.evidence}</dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-semibold uppercase text-text-secondary">예상 효과</dt>
-            <dd className="mt-1 text-[13px] text-text-primary">{intervention.expectedEffect}</dd>
-          </div>
+        <dl className="grid gap-3">
+          <Detail label="추천 이유" value={intervention.reason} />
+          <Detail label="근거 데이터" value={intervention.evidence} />
+          <Detail label="예상 효과" value={intervention.expectedEffect} />
         </dl>
       </BottomSheet>
     </article>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div className="rounded-[20px] bg-bg p-4">
+      <dt className="text-[10px] font-semibold uppercase text-text-secondary">{label}</dt>
+      <dd className="mt-1 text-[13px] leading-relaxed text-text-primary">{value}</dd>
+    </div>
   );
 }
