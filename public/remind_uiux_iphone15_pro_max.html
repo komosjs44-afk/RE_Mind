@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 하루 플래너 — iPhone 15 Pro Max 기준</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: linear-gradient(180deg,#f7f6f1 0%,#ecebe5 100%); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 16px; }
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f4f4f0;
+    --bg-info: #e6f1fb;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b68;
+    --text-tertiary: #9b9b98;
+    --border-tertiary: rgba(0,0,0,0.1);
+    --border-secondary: rgba(0,0,0,0.2);
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-soft: 0 8px 24px rgba(0,0,0,0.05);
+    --shadow-card: 0 4px 14px rgba(0,0,0,0.04);
+  }
+  .pw { display: flex; justify-content: center; padding: 0; width: 100%; }
+  .phone { width: 454px; height: 956px; max-width: calc(100vw - 24px); background: #e8e8e4; border-radius: 56px; border: 0.5px solid #c0c0bc; padding: 12px; box-shadow: 0 22px 70px rgba(0,0,0,.16); }
+  .screen { position: relative; width: 430px; height: 932px; max-width: 100%; background: var(--bg-primary); border-radius: 44px; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* iPhone 15 Pro Max 기준: CSS viewport 430 × 932px, DPR 3 기준 모형 */
+  .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 126px; height: 36px; border-radius: 999px; background: #090909; z-index: 20; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+  .screen-scroll { flex: 1; overflow-y: auto; padding-bottom: 82px; scrollbar-width: none; }
+  .screen-scroll::-webkit-scrollbar { display: none; }
+
+  .sb { display: flex; justify-content: space-between; align-items: center; padding: 17px 42px 12px; font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+  .ah { padding: 8px 20px 10px; border-bottom: 0.5px solid var(--border-tertiary); }
+  .ah-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+  .at { font-size: 18px; font-weight: 500; color: var(--text-primary); }
+  .ad { font-size: 12px; color: var(--text-secondary); }
+  .sec { padding: 16px 20px; border-bottom: 0.5px solid var(--border-tertiary); }
+  .sl { font-size: 10px; color: var(--text-tertiary); letter-spacing: .05em; margin-bottom: 8px; font-weight: 500; text-transform: uppercase; }
+  .simbadge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #FAEEDA; color: #633806; border: 0.5px solid #EF9F27; margin-bottom: 8px; }
+  .simrow { display: flex; gap: 6px; }
+  .simb { flex: 1; padding: 7px 4px; border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary); background: var(--bg-secondary); font-size: 10px; color: var(--text-secondary); cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all .15s; font-family: inherit; }
+  .simb i { font-size: 16px; }
+  .simb.sb { border-color: #E24B4A; background: #FCEBEB; color: #A32D2D; }
+  .simb.sn { border-color: #BA7517; background: #FAEEDA; color: #854F0B; }
+  .simb.sg { border-color: #1D9E75; background: #E1F5EE; color: #0F6E56; }
+  .hrow { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .hc { background: #fff; border-radius: 16px; padding: 12px; border: 0.5px solid rgba(0,0,0,0.07); box-shadow: var(--shadow-card); }
+  .hl { font-size: 10px; color: var(--text-tertiary); margin-bottom: 3px; display: flex; align-items: center; gap: 3px; }
+  .hl i { font-size: 11px; }
+  .hv { font-size: 16px; font-weight: 700; color: var(--text-primary); display:flex; align-items:baseline; gap:2px; flex-wrap:wrap; }
+  .hu { font-size: 10px; color: var(--text-secondary); font-weight: 400; }
+  .aihdr { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .aibadge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 3px 8px; border-radius: 20px; background: #E1F5EE; color: #085041; border: 0.5px solid #5DCAA5; }
+  .tl { display: flex; flex-direction: column; }
+  .ti { display: flex; gap: 8px; align-items: stretch; }
+  .tcol { width: 36px; font-size: 10px; color: var(--text-tertiary); padding-top: 10px; flex-shrink: 0; text-align: right; }
+  .lc { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 11px; flex-shrink: 0; }
+  .dn { background: #c0c0bc; }
+  .dai { background: #1D9E75; }
+  .dco { background: #185FA5; }
+  .vl { width: 1px; flex: 1; min-height: 10px; background: var(--border-tertiary); }
+  .ec { flex: 1; padding: 12px; border-radius: 18px; margin: 5px 0; border: 0.5px solid rgba(0,0,0,0.08); background: var(--bg-primary); box-shadow: var(--shadow-card); }
+  .ec.ais { background: #E1F5EE; border-color: #5DCAA5; }
+  .ec.aco { background: #E6F1FB; border-color: #85B7EB; }
+  .ec.aal { background: #FAEEDA; border-color: #EF9F27; }
+  .et { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+  .ec.ais .et { color: #0F6E56; }
+  .ec.aco .et { color: #0C447C; }
+  .ec.aal .et { color: #633806; }
+  .es { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+  .ec.ais .es { color: #1D9E75; }
+  .ec.aco .es { color: #185FA5; }
+  .atag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 10px; background: #9FE1CB; color: #085041; margin-top: 3px; }
+  .ctag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 10px; background: #B5D4F4; color: #042C53; margin-top: 3px; }
+  .altag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 10px; background: #FAC775; color: #412402; margin-top: 3px; }
+  .movedtag { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 10px; background: #CECBF6; color: #26215C; margin-top: 3px; }
+  .ar { display: flex; gap: 8px; margin-top: 12px; flex-wrap:wrap; }
+  .bacc { flex: 1; min-width:88px; height:38px; padding: 0 10px; border-radius: 14px; border: 0.5px solid #1D9E75; background: #E1F5EE; color: #085041; font-size: 11px; font-weight:700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; transition:.2s ease; }
+  .badj { flex: 1; min-width:88px; height:38px; padding: 0 10px; border-radius: 14px; border: 0.5px solid #c0c0bc; background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; font-weight:700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: inherit; transition:.2s ease; }
+  .ao { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .aopt { padding: 5px 8px; border-radius: var(--radius-md); border: 0.5px solid #EF9F27; background: #FAEEDA; color: #633806; font-size: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: inherit; width: 100%; }
+  .aopt i { font-size: 12px; }
+  .tbar { display: flex; border-top: 0.5px solid var(--border-tertiary); padding: 10px 0 8px; margin-top:auto; background:rgba(255,255,255,.86); backdrop-filter: blur(14px); }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9px; color: var(--text-tertiary); cursor: pointer; }
+  .tab.on { color: #1D9E75; }
+  .tab i { font-size: 18px; }
+  .pg { display: none; }
+  .pg.show { display: block; }
+  .calwrap { padding: 12px 20px; }
+  .calm { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .calmt { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .calnav { width: 24px; height: 24px; border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; font-family: inherit; }
+  .calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 12px; }
+  .caldow { font-size: 9px; color: var(--text-tertiary); text-align: center; padding: 2px 0; font-weight: 500; }
+  .calday { font-size: 11px; color: var(--text-primary); text-align: center; padding: 5px 2px; border-radius: var(--radius-md); cursor: pointer; }
+  .calday:hover { background: var(--bg-secondary); }
+  .calday.other { color: var(--text-tertiary); }
+  .calday.today { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+  .calday.sel { background: #1D9E75; color: #E1F5EE; font-weight: 500; }
+  .caldot { width: 4px; height: 4px; border-radius: 50%; background: #1D9E75; margin: 1px auto 0; }
+  .calevs { display: flex; flex-direction: column; gap: 6px; }
+  .calev { padding: 8px 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border-tertiary); display: flex; align-items: center; gap: 8px; }
+  .calev.ai { border-color: #5DCAA5; background: #E1F5EE; }
+  .calevdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .calevdot.n { background: #888780; }
+  .calevdot.a { background: #1D9E75; }
+  .calevinfo { flex: 1; }
+  .calevtitle { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+  .calev.ai .calevtitle { color: #0F6E56; }
+  .calevtime { font-size: 10px; color: var(--text-tertiary); }
+  .calsecl { font-size: 10px; color: var(--text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+
+  /* UX 개선: 홈 최상단 AI 인사이트 카드 */
+  .insight-card{
+    margin:16px 20px 8px;
+    padding:18px;
+    border-radius:22px;
+    background:linear-gradient(180deg,#ffffff 0%,#fafaf7 100%);
+    border:1px solid rgba(0,0,0,0.06);
+    box-shadow:var(--shadow-soft);
+  }
+  .insight-card.bad{ background:linear-gradient(180deg,#fff 0%,#fff6f5 100%); }
+  .insight-card.normal{ background:linear-gradient(180deg,#fff 0%,#fff9ed 100%); }
+  .insight-card.good{ background:linear-gradient(180deg,#fff 0%,#f3fbf7 100%); }
+  .insight-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .risk-badge{ display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:6px 10px; border-radius:999px; font-weight:700; }
+  .risk-score{ font-size:13px; color:var(--text-secondary); font-weight:700; }
+  .insight-card.bad .risk-badge{ background:#FDECEC; color:#B42318; }
+  .insight-card.normal .risk-badge{ background:#FFF1D6; color:#8A4B05; }
+  .insight-card.good .risk-badge{ background:#E1F5EE; color:#0F6E56; }
+  .insight-title{ font-size:18px; font-weight:800; color:#111827; margin-bottom:8px; line-height:1.3; letter-spacing:-.02em; }
+  .insight-desc{ font-size:13px; line-height:1.6; color:#6b7280; word-break:keep-all; }
+  .insight-metrics{ display:flex; gap:6px; margin-top:12px; }
+  .metric-pill{ flex:1; padding:8px 6px; border-radius:14px; background:rgba(255,255,255,.72); border:0.5px solid rgba(0,0,0,.06); }
+  .metric-pill span{ display:block; font-size:9px; color:#9b9b98; margin-bottom:2px; }
+  .metric-pill strong{ font-size:12px; color:#1a1a1a; }
+
+  /* UX 개선: 측정 데이터 의미 라벨 */
+  .state-label{
+    display:inline-flex;
+    margin-left:4px;
+    padding:2px 6px;
+    border-radius:999px;
+    background:#f0efea;
+    color:#6b6b68;
+    font-size:9px;
+    font-weight:700;
+  }
+  .state-label.bad{ background:#FDECEC; color:#B42318; }
+  .state-label.normal{ background:#FFF1D6; color:#8A4B05; }
+  .state-label.good{ background:#E1F5EE; color:#0F6E56; }
+
+  /* UX 개선: AI 설명 가능성 */
+  .ai-subtitle{ font-size:11px; color:#6b6b68; margin-top:-5px; margin-bottom:12px; line-height:1.45; }
+  .ai-reason{ font-size:11px; color:#4b5563; margin-top:8px; line-height:1.45; }
+  .ai-reason b{ color:#111827; }
+  .ai-effect{ margin-top:7px; display:inline-flex; padding:4px 8px; border-radius:999px; background:#ECFDF3; color:#027A48; font-size:10px; font-weight:700; }
+  .ec.ais{ box-shadow:0 6px 18px rgba(29,158,117,.12); }
+  .ec.aco{ box-shadow:0 6px 18px rgba(24,95,165,.10); }
+  .bacc:hover,.badj:hover,.aopt:hover,.simb:hover,.calnav:hover{ transform:translateY(-1px); }
+  .bacc:active,.badj:active,.aopt:active,.simb:active,.calnav:active{ transform:scale(.98); }
+
+  /* UX 개선: 캘린더 AI 일정 강조 */
+  .calev{ background:#fff; box-shadow:var(--shadow-card); border-radius:16px; }
+  .calev.ai{ border-color:#5DCAA5; background:linear-gradient(180deg,#F1FBF7 0%,#E1F5EE 100%); }
+  .calday{ transition:.18s ease; }
+  .calday.sel{ box-shadow:0 5px 12px rgba(29,158,117,.18); }
+
+  /* UX 개선: 토스트 */
+  .toast{
+    position:fixed;
+    bottom:94px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#111827;
+    color:white;
+    padding:13px 16px;
+    border-radius:18px;
+    font-size:13px;
+    opacity:0;
+    transition:.28s ease;
+    z-index:999;
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+</style>
+</head>
+<body>
+<div class="pw">
+<div class="phone"><div class="screen">
+<div class="dynamic-island" aria-hidden="true"></div>
+<div class="screen-scroll">
+
+<div class="sb">
+  <span>9:41</span>
+  <span><i class="ti ti-wifi"></i> <i class="ti ti-battery"></i></span>
+</div>
+
+<div class="ah">
+  <div class="ah-top">
+    <span class="at" id="ptitle">오늘의 플랜</span>
+    <i class="ti ti-bell" style="font-size:18px;color:#9b9b98"></i>
+  </div>
+  <span class="ad">2026년 6월 16일 화요일</span>
+</div>
+
+<div id="pg-home" class="pg show">
+  <!-- UX 개선: 데이터보다 먼저 AI가 오늘 상태를 해석하는 인사이트 카드 -->
+  <div class="insight-card bad" id="insight-card">
+    <div class="insight-top">
+      <span class="risk-badge" id="risk-badge"><i class="ti ti-alert-triangle"></i> 과부하 위험</span>
+      <span class="risk-score" id="risk-score">72/100</span>
+    </div>
+    <div class="insight-title" id="insight-title">오늘은 과부하 위험이 있어요</div>
+    <div class="insight-desc" id="insight-desc">수면 부족과 높은 스트레스가 감지됐습니다. 오후 집중력 저하를 막기 위해 회복 루틴을 자동 배치했어요.</div>
+    <div class="insight-metrics">
+      <div class="metric-pill"><span>오늘 회복 점수</span><strong id="recover-score">45점</strong></div>
+      <div class="metric-pill"><span>AI 개입</span><strong id="intervention-count">3개</strong></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="simbadge"><i class="ti ti-device-watch" style="font-size:11px"></i> 삼성헬스 데이터 시뮬레이션</div>
+    <div class="simrow">
+      <button class="simb sb" onclick="setSim('bad')"><i class="ti ti-moon"></i><span>수면 부족</span></button>
+      <button class="simb" onclick="setSim('normal')"><i class="ti ti-mood-smile"></i><span>보통</span></button>
+      <button class="simb" onclick="setSim('good')"><i class="ti ti-mood-happy"></i><span>최상</span></button>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sl">측정 데이터</div>
+    <div class="hrow">
+      <div class="hc"><div class="hl"><i class="ti ti-moon"></i>수면</div><div class="hv" id="v-sleep">5.5<span class="hu">h</span></div></div>
+      <div class="hc"><div class="hl"><i class="ti ti-heart"></i>스트레스</div><div class="hv" id="v-stress">72<span class="hu">/100</span></div></div>
+      <div class="hc"><div class="hl"><i class="ti ti-walk"></i>걸음수</div><div class="hv" id="v-steps">3,200<span class="hu">보</span></div></div>
+      <div class="hc"><div class="hl"><i class="ti ti-bolt"></i>에너지</div><div class="hv" id="v-energy">45<span class="hu">/100</span></div></div>
+    </div>
+  </div>
+  <div class="sec" style="border-bottom:none;padding-bottom:16px">
+    <div class="aihdr"><span class="aibadge"><i class="ti ti-sparkles" style="font-size:11px"></i> 오늘 회복 플랜</span></div>
+    <div class="ai-subtitle">컨디션과 일정 밀도를 기반으로 AI가 하루를 다시 배치했어요.</div>
+    <div class="tl" id="timeline"></div>
+  </div>
+</div>
+
+<div id="pg-cal" class="pg">
+  <div class="calwrap">
+    <div class="calm">
+      <button class="calnav" onclick="changeMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+      <span class="calmt" id="cal-title">2026년 6월</span>
+      <button class="calnav" onclick="changeMonth(1)"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="calgrid" id="cal-grid"></div>
+    <div class="calsecl" id="cal-day-label">6월 16일 일정</div>
+    <div class="calevs" id="cal-events"></div>
+  </div>
+</div>
+
+<div id="pg-anal" class="pg">
+  <div class="sec" style="border-bottom:none;padding:20px">
+    <div class="sl" style="margin-bottom:14px">이번 주 컨디션 추이</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">월</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div style="width:80%;height:100%;background:#1D9E75;border-radius:4px"></div></div><span style="font-size:10px;color:#1D9E75;width:24px">80</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">화</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div style="width:62%;height:100%;background:#BA7517;border-radius:4px"></div></div><span style="font-size:10px;color:#BA7517;width:24px">62</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">수</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div style="width:45%;height:100%;background:#E24B4A;border-radius:4px"></div></div><span style="font-size:10px;color:#E24B4A;width:24px">45</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">목</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div style="width:55%;height:100%;background:#BA7517;border-radius:4px"></div></div><span style="font-size:10px;color:#BA7517;width:24px">55</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">금</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div style="width:70%;height:100%;background:#1D9E75;border-radius:4px"></div></div><span style="font-size:10px;color:#1D9E75;width:24px">70</span></div>
+      <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:#9b9b98;width:20px">오늘</span><div style="flex:1;height:6px;background:#f4f4f0;border-radius:4px;overflow:hidden"><div id="today-bar" style="width:45%;height:100%;background:#E24B4A;border-radius:4px"></div></div><span id="today-score" style="font-size:10px;color:#E24B4A;width:24px">45</span></div>
+    </div>
+    <div style="margin-top:16px;padding:10px 12px;background:#f4f4f0;border-radius:8px;border:0.5px solid rgba(0,0,0,0.1)">
+      <div style="font-size:10px;color:#9b9b98;margin-bottom:4px">AI 주간 분석</div>
+      <div id="week-msg" style="font-size:11px;color:#1a1a1a;line-height:1.5">수·목 컨디션이 저하됐어요. 주중 수면 시간을 30분 늘려보세요.</div>
+    </div>
+  </div>
+</div>
+
+<div id="pg-user" class="pg">
+  <div class="sec" style="border-bottom:none;padding:20px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:44px;height:44px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;color:#0F6E56">윤</div>
+      <div><div style="font-size:14px;font-weight:500;color:#1a1a1a">윤정빈</div><div style="font-size:11px;color:#6b6b68">갤럭시 워치 연동 중</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.1)"><span style="font-size:12px;color:#6b6b68">삼성헬스 연동</span><span style="font-size:12px;color:#1D9E75">연결됨</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.1)"><span style="font-size:12px;color:#6b6b68">Google Calendar</span><span style="font-size:12px;color:#1D9E75">연결됨</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:12px;color:#6b6b68">알림 설정</span><span style="font-size:12px;color:#9b9b98">오전 7:00</span></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="tbar">
+  <div class="tab on" onclick="goPage('home')" id="tab-home"><i class="ti ti-home"></i><span>홈</span></div>
+  <div class="tab" onclick="goPage('cal')" id="tab-cal"><i class="ti ti-calendar"></i><span>캘린더</span></div>
+  <div class="tab" onclick="goPage('anal')" id="tab-anal"><i class="ti ti-chart-bar"></i><span>분석</span></div>
+  <div class="tab" onclick="goPage('user')" id="tab-user"><i class="ti ti-user"></i><span>내 정보</span></div>
+</div>
+
+</div></div></div>
+
+<script>
+const health={
+  bad:{
+    sleep:'5.5',stress:'72',steps:'3,200',energy:'45',
+    risk:'72/100',recover:'45점',interventions:'3개',
+    badge:'과부하 위험', icon:'ti-alert-triangle',
+    title:'오늘은 과부하 위험이 있어요',
+    desc:'수면 부족과 높은 스트레스가 감지됐습니다. 오후 집중력 저하를 막기 위해 회복 루틴을 자동 배치했어요.',
+    labels:{sleep:['부족','bad'],stress:['높음','bad'],steps:['낮음','bad'],energy:['낮음','bad']}
+  },
+  normal:{
+    sleep:'6.5',stress:'48',steps:'5,100',energy:'62',
+    risk:'48/100',recover:'62점',interventions:'2개',
+    badge:'주의 필요', icon:'ti-activity',
+    title:'오늘은 무난한 컨디션이에요',
+    desc:'컨디션은 안정적이지만 오후 회의 이후 피로가 쌓일 수 있어 짧은 휴식과 저녁 루틴을 배치했어요.',
+    labels:{sleep:['보통','normal'],stress:['보통','normal'],steps:['보통','normal'],energy:['보통','normal']}
+  },
+  good:{
+    sleep:'8.0',stress:'21',steps:'7,800',energy:'88',
+    risk:'21/100',recover:'88점',interventions:'2개',
+    badge:'최적 상태', icon:'ti-circle-check',
+    title:'오늘은 고난도 업무에 좋은 날이에요',
+    desc:'수면과 에너지가 안정적입니다. 미뤄둔 집중 업무를 앞쪽으로 당기고 저녁 운동 루틴을 유지했어요.',
+    labels:{sleep:['충분','good'],stress:['낮음','good'],steps:['좋음','good'],energy:['높음','good']}
+  }
+};
+function parseTime(t){const m=t.match(/(\d+):(\d+)/);return m?parseInt(m[1])*60+parseInt(m[2]):9999;}
+const baseSched={
+  bad:[
+    {time:'09:00',title:'팀 미팅',sub:'30분',type:'n'},
+    {time:'09:55',title:'10분 명상',sub:'AI가 제안하는 휴식',type:'ai',id:'a1',alts:[{label:'10:10 명상',t:'10:10'},{label:'13:00 점심 후 명상',t:'13:00'},{label:'17:50 퇴근 전 명상',t:'17:50'}]},
+    {time:'10:30',title:'단순 업무',sub:'이메일·보고서 정리',type:'n'},
+    {time:'12:00',title:'30분 산책',sub:'AI가 제안하는 루틴',type:'ai',id:'a2',alts:[{label:'12:30 산책',t:'12:30'},{label:'13:00 산책',t:'13:00'},{label:'19:00 저녁 산책',t:'19:00'}]},
+    {time:'14:00',title:'팀 미팅',sub:'1시간',type:'n'},
+    {time:'15:50',title:'스트레칭 15분',sub:'AI가 제안하는 휴식',type:'ai',id:'a3',alts:[{label:'16:30 스트레칭',t:'16:30'},{label:'17:00 스트레칭',t:'17:00'},{label:'18:00 업무 후 스트레칭',t:'18:00'}]},
+  ],
+  normal:[
+    {time:'09:00',title:'집중 업무',sub:'딥워크 블록',type:'n'},
+    {time:'11:00',title:'10분 휴식',sub:'AI가 제안하는 휴식',type:'ai',id:'a1',alts:[{label:'11:30 휴식',t:'11:30'},{label:'10:45 휴식',t:'10:45'},{label:'12:00 직전 휴식',t:'11:50'}]},
+    {time:'12:00',title:'점심 식사',sub:'1시간',type:'n'},
+    {time:'14:00',title:'팀 미팅',sub:'1시간',type:'n'},
+    {time:'18:00',title:'30분 운동',sub:'AI가 제안하는 루틴',type:'ai',id:'a2',alts:[{label:'18:30 운동',t:'18:30'},{label:'12:30 점심 운동',t:'12:30'},{label:'19:00 운동',t:'19:00'}]},
+  ],
+  good:[
+    {time:'08:00',title:'딥워크 블록',sub:'고난이도 업무 집중',type:'n'},
+    {time:'10:30',title:'팀 미팅',sub:'1시간',type:'n'},
+    {time:'13:00',title:'미뤄둔 기획 업무',sub:'AI가 당겨서 제안',type:'ai',id:'a1',alts:[{label:'14:00 기획 업무',t:'14:00'},{label:'15:00 기획 업무',t:'15:00'},{label:'내일 오전으로 이동',t:'09:00'}]},
+    {time:'15:00',title:'집중 업무',sub:'딥워크 블록',type:'n'},
+    {time:'18:00',title:'1시간 운동',sub:'AI가 제안하는 루틴',type:'ai',id:'a2',alts:[{label:'18:30 운동',t:'18:30'},{label:'12:00 점심 운동',t:'12:00'},{label:'19:00 운동',t:'19:00'}]},
+  ]
+};
+let st={};let sim='bad';let curY=2026,curM=5,selD=16;
+function goPage(p){document.querySelectorAll('.pg').forEach(x=>x.classList.remove('show'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.getElementById('pg-'+p).classList.add('show');document.getElementById('tab-'+p).classList.add('on');const titles={home:'오늘의 플랜',cal:'캘린더',anal:'분석',user:'내 정보'};document.getElementById('ptitle').textContent=titles[p]||'오늘의 플랜';if(p==='cal')renderCal();}
+function labelHTML(label){return `<span class="state-label ${label[1]}">${label[0]}</span>`;}
+function setSim(type){
+  sim=type;
+  st={};
+  const h=health[type];
+
+  document.getElementById('v-sleep').innerHTML=h.sleep+'<span class="hu">시간</span>'+labelHTML(h.labels.sleep);
+  document.getElementById('v-stress').innerHTML=h.stress+'<span class="hu">점</span>'+labelHTML(h.labels.stress);
+  document.getElementById('v-steps').innerHTML=h.steps+'<span class="hu">보</span>'+labelHTML(h.labels.steps);
+  document.getElementById('v-energy').innerHTML=h.energy+'<span class="hu">점</span>'+labelHTML(h.labels.energy);
+
+  const card=document.getElementById('insight-card');
+  card.className='insight-card '+type;
+  document.getElementById('risk-badge').innerHTML=`<i class="ti ${h.icon}"></i> ${h.badge}`;
+  document.getElementById('risk-score').textContent=h.risk;
+  document.getElementById('insight-title').textContent=h.title;
+  document.getElementById('insight-desc').textContent=h.desc;
+  document.getElementById('recover-score').textContent=h.recover;
+  document.getElementById('intervention-count').textContent=h.interventions;
+
+  document.querySelectorAll('.simb').forEach(b=>b.className='simb');
+  const btns=document.querySelectorAll('.simb');
+  if(type==='bad')btns[0].classList.add('sb');
+  if(type==='normal')btns[1].classList.add('sn');
+  if(type==='good')btns[2].classList.add('sg');
+
+  const scores={bad:45,normal:62,good:88};
+  const colors={bad:'#E24B4A',normal:'#BA7517',good:'#1D9E75'};
+  const sc=scores[type];
+  const co=colors[type];
+
+  document.getElementById('today-bar').style.width=sc+'%';
+  document.getElementById('today-bar').style.background=co;
+  document.getElementById('today-score').style.color=co;
+  document.getElementById('today-score').textContent=sc;
+
+  const msgs={
+    bad:'수면 부족과 높은 스트레스가 겹쳤습니다. 오늘은 집중 업무보다 회복 루틴의 우선순위를 높이는 편이 안전합니다.',
+    normal:'컨디션은 보통 수준입니다. 오전 집중 업무와 오후 짧은 휴식을 섞으면 안정적으로 유지할 수 있습니다.',
+    good:'컨디션이 좋습니다. 고난도 업무를 처리하기 좋은 날이며, 저녁 운동 루틴을 유지하면 회복 리듬도 좋습니다.'
+  };
+  document.getElementById('week-msg').textContent=msgs[type];
+  renderTL(type);
+}
+function accept(id){st[id]={s:'co'};renderTL(sim);toast('회복 루틴이 일정에 반영됐어요');}
+function reqAlt(id){st[id]={s:'al'};renderTL(sim);toast('가능한 시간대를 다시 제안했어요');}
+function chooseAlt(id,newTime,label){st[id]={s:'co',t:newTime,label:label};renderTL(sim);toast('시간을 조정했어요');}
+function delay15(id){
+  const ev=baseSched[sim].find(e=>e.id===id);
+  if(!ev)return;
+  const m=parseTime(ev.time)+15;
+  const hh=String(Math.floor(m/60)).padStart(2,'0');
+  const mm=String(m%60).padStart(2,'0');
+  const nt=`${hh}:${mm}`;
+  st[id]={s:'co',t:nt,label:nt+'로 15분 뒤 이동'};
+  renderTL(sim);
+  toast('15분 뒤로 조정했어요');
+}
+function toast(msg){
+  const old=document.querySelector('.toast');
+  if(old)old.remove();
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.classList.add('show'),30);
+  setTimeout(()=>t.remove(),2200);
+}
+function getAiReason(type,e){
+  const reason={
+    bad:'수면 부족 + 스트레스 상승 감지',
+    normal:'회의 이후 피로 누적 가능성 감지',
+    good:'에너지 여유 + 집중 가능 시간대 감지'
+  };
+  const effect={
+    bad:'예상 집중력 회복 +15%',
+    normal:'컨디션 유지 가능성 +12%',
+    good:'고난도 업무 처리 효율 +18%'
+  };
+  return {reason:reason[type],effect:effect[type]};
+}
+function getSortedEvents(type){return JSON.parse(JSON.stringify(baseSched[type])).map(e=>{if(e.id&&st[e.id]&&st[e.id].s==='co'&&st[e.id].t){e.displayTime=st[e.id].t;e.moved=true;e.movedLabel=st[e.id].label;}else{e.displayTime=e.time;e.moved=false;}return e;}).sort((a,b)=>parseTime(a.displayTime)-parseTime(b.displayTime));}
+function renderTL(type){const tl=document.getElementById('timeline');const evs=getSortedEvents(type);tl.innerHTML=evs.map((e,i)=>{const s=e.id?st[e.id]:null;const isCo=s&&s.s==='co';const isAl=s&&s.s==='al';const isLast=i===evs.length-1;let cc='ec',dc='dot dn',tag='',act='';if(e.type==='ai'){if(isCo){cc='ec aco';dc='dot dco';tag=e.moved?`<span class="ctag"><i class="ti ti-check" style="font-size:9px"></i> 확정</span> <span class="movedtag"><i class="ti ti-arrows-exchange" style="font-size:9px"></i> ${e.time} → ${e.displayTime}</span>`:`<span class="ctag"><i class="ti ti-check" style="font-size:9px"></i> 일정 확정</span>`;}else if(isAl){cc='ec aal';dc='dot dai';tag=`<span class="altag">다른 시간 선택</span>`;act=`<div class="ao">${e.alts.map(a=>`<button class="aopt" onclick="chooseAlt('${e.id}','${a.t}','${a.label}')"><span>${a.label}</span><i class="ti ti-arrow-right"></i></button>`).join('')}</div>`;}else{cc='ec ais';dc='dot dai';tag=`<span class="atag">AI 제안</span>`;act=`<div class="ar"><button class="bacc" onclick="accept('${e.id}')"><i class="ti ti-check" style="font-size:11px"></i>추천 수용</button><button class="badj" onclick="delay15('${e.id}')"><i class="ti ti-clock-plus" style="font-size:11px"></i>15분 뒤</button><button class="badj" onclick="reqAlt('${e.id}')"><i class="ti ti-adjustments" style="font-size:11px"></i>시간 변경</button></div>`;}}return`<div class="ti"><div class="tcol">${e.displayTime}</div><div class="lc"><div class="${dc}"></div>${!isLast?'<div class="vl"></div>':''}</div><div class="${cc}"><div class="et">${e.title}</div><div class="es">${e.moved?e.movedLabel:e.sub}</div>${e.type==='ai'?`<div class="ai-reason"><b>추천 이유</b> · ${getAiReason(type,e).reason}</div><div class="ai-effect">${getAiReason(type,e).effect}</div>`:''}${tag}${act}</div></div>`;}).join('');}
+function changeMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}selD=null;renderCal();}
+function renderCal(){const mn=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];document.getElementById('cal-title').textContent=curY+'년 '+mn[curM];const grid=document.getElementById('cal-grid');const dows=['일','월','화','수','목','금','토'];let html=dows.map(d=>`<div class="caldow">${d}</div>`).join('');const first=new Date(curY,curM,1).getDay();const days=new Date(curY,curM+1,0).getDate();const prevDays=new Date(curY,curM,0).getDate();for(let i=0;i<first;i++)html+=`<div class="calday other">${prevDays-first+i+1}</div>`;for(let d=1;d<=days;d++){const isToday=curY===2026&&curM===5&&d===16;const isSel=selD===d;const hasEv={16:true,17:true,18:true,20:true}[d]&&curM===5&&curY===2026;let cls='calday';if(isSel)cls+=' sel';else if(isToday)cls+=' today';html+=`<div class="${cls}" onclick="selectDay(${d})">${d}${hasEv?'<div class="caldot"></div>':''}</div>`;}const rem=(7-((first+days)%7))%7;for(let i=1;i<=rem;i++)html+=`<div class="calday other">${i}</div>`;grid.innerHTML=html;renderCalEvents(selD||16);}
+function selectDay(d){selD=d;renderCal();renderCalEvents(d);}
+function getCalEventsForDay(d){const base={16:[{title:'팀 미팅',time:'09:00',ai:false},{title:'10분 명상',time:'09:55',ai:true},{title:'30분 산책',time:'12:00',ai:true},{title:'팀 미팅',time:'14:00',ai:false}],17:[{title:'기획 보고',time:'10:00',ai:false},{title:'점심 운동',time:'12:30',ai:true}],18:[{title:'전사 회의',time:'14:00',ai:false},{title:'스트레칭',time:'16:00',ai:true}],20:[{title:'주간 회의',time:'09:00',ai:false},{title:'딥워크 블록',time:'10:30',ai:false},{title:'저녁 산책',time:'18:30',ai:true}]};if(d!==16||curM!==5||curY!==2026)return base[d]||[];const evs=JSON.parse(JSON.stringify(base[16]));Object.keys(st).forEach(id=>{const s=st[id];if(s&&s.s==='co'&&s.t){const sc=baseSched[sim].find(e=>e.id===id);if(sc){const ev=evs.find(e=>e.title===sc.title);if(ev){ev.time=s.t;ev.moved=true;}}}});return evs.sort((a,b)=>parseTime(a.time)-parseTime(b.time));}
+function renderCalEvents(d){const mn=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];document.getElementById('cal-day-label').textContent=mn[curM]+' '+d+'일 일정';const evs=getCalEventsForDay(d);const ce=document.getElementById('cal-events');if(!evs.length){ce.innerHTML=`<div style="font-size:11px;color:#9b9b98;padding:8px 0">일정이 없어요</div>`;return;}ce.innerHTML=evs.map(e=>`<div class="calev${e.ai?' ai':''}"><div class="calevdot${e.ai?' a':' n'}"></div><div class="calevinfo"><div class="calevtitle">${e.title}</div><div class="calevtime">${e.time}${e.ai?' · AI 최적화':''}${e.moved?' · 시간 조정됨':''}</div></div></div>`).join('');}
+setSim('bad');
+</script>
+</body>
+</html>

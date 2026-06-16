@@ -1,0 +1,48 @@
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css');
+@import 'tailwindcss';
+
+@theme {
+  /* Background / Surfaces */
+  --color-bg: #faf8f4;
+  --color-card: #ffffff;
+
+  /* Text */
+  --color-text-primary: #2b2f38;
+  --color-text-secondary: #7a7f87;
+
+  /* Borders & dividers */
+  --color-border: #e9e5dd;
+
+  /* Brand / semantic */
+  --color-ai: #5c6ac4;
+  --color-healthy: #a7d7c5;
+  --color-warning: #f4c27a;
+  --color-risk: #efa8a8;
+  --color-navy: #2b2f38;
+
+  /* Soft backgrounds for chips and subtle highlights */
+  --color-risk-soft: #fcefef;
+  --color-warning-soft: #fdf6ea;
+  --color-healthy-soft: #eff8f5;
+  --color-ai-soft: #ebedf8;
+}
+
+* { box-sizing: border-box; }
+body { min-width: 320px; min-height: 100vh; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--color-bg); color: var(--color-text-primary); }
+button { font: inherit; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@keyframes check-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-check-pop { animation: check-pop .35s ease-out; }
+
+@media (max-width: 460px) {
+  .app-shell { padding: 0; }
+  .phone-frame { width: 100vw; height: 100vh; border-radius: 0; padding: 0; border: 0; box-shadow: none; }
+  .phone-screen { border-radius: 0; border: 0; }
+}
