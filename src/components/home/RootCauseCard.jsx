@@ -1,12 +1,12 @@
 import { buildRiskReasons } from '../../utils/riskAnalysis';
 
-export default function RootCauseCard({ dailyEvents, healthData, screenData }) {
-  const reasons = buildRiskReasons({ dailyEvents, healthData, screenData });
+export default function RootCauseCard({ dailyEvents, healthData, academicTasks = [] }) {
+  const reasons = buildRiskReasons({ dailyEvents, healthData, academicTasks });
 
   return (
     <section className="mx-4 mt-3 rounded-[24px] border border-border bg-card p-5 shadow-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">위험 원인 분석</p>
-      <h2 className="mt-1 text-[18px] font-semibold text-text-primary">위험도는 한 가지 이유로 오르지 않았습니다</h2>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">과부하 원인 분석</p>
+      <h2 className="mt-1 text-[18px] font-semibold text-text-primary">오늘 일정 과부하는 복합 원인입니다</h2>
       <div className="mt-4 grid gap-2">
         {reasons.map((item) => (
           <ReasonItem key={item.source} item={item} />

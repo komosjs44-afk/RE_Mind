@@ -98,7 +98,7 @@ export function usePlanRecommendationState({ baseRecommendations, showToast, clo
     showToast({ message: 'AI 추천 일정을 캘린더에 반영했습니다.' });
   };
 
-  const moveRecommendation = (id, nextTime) => {
+  const moveRecommendation = async (id, nextTime) => {
     const target = allRecommendations.find((item) => item.id === id);
     if (!target) return;
     updateState(id, {
@@ -109,7 +109,14 @@ export function usePlanRecommendationState({ baseRecommendations, showToast, clo
       snoozeUntil: undefined,
       dismissedAt: undefined,
     });
-    showToast({ message: `${nextTime}으로 일정을 이동했습니다. 캘린더에 반영됩니다.` });
+    // 고도화 시 실제 API 호출로 교체
+    const { createGoogleCalendarEvent, updateGoogleCalendarEvent } = await import('../api/calendar.js');
+    if (target.status === INTERVENTION_STATUS.ACCEPTED) {
+      await updateGoogleCalendarEvent(target.id, { startTime: nextTime });
+    } else {
+      await createGoogleCalendarEvent({ title: target.title, startTime: nextTime, endTime: target.endTime });
+    }
+    showToast({ message: `${nextTime}으로 이동했습니다. 캘린더에 반영됐습니다.` });
   };
 
   const delayRecommendation = (id) => {

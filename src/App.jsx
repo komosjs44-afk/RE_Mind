@@ -9,6 +9,7 @@ import {
   dataSourceSummary,
   academicTasks,
 } from './data/schedule';
+
 import { usePlanRecommendationState } from './hooks/usePlanRecommendationState';
 import { parseTime } from './utils/time';
 import StartScreen from './components/onboarding/StartScreen';
@@ -102,6 +103,7 @@ export default function App() {
                   overload={overloadAnalysis[scenario]}
                   health={healthSummary[scenario]}
                   calendarSummary={calendarSummary[scenario]}
+                  calendarEvents={calendarEvents[scenario]}
                   academicTasks={academicTasks}
                   dataSources={dataSourceSummary[scenario]}
                   dayEvents={timelineEvents}

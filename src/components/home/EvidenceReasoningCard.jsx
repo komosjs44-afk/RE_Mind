@@ -1,38 +1,41 @@
 export default function EvidenceReasoningCard({ prediction, healthData, dataSources, intervention }) {
-  const calendarSource = dataSources.find((source) => source.id === 'google-calendar');
-  const healthSource = dataSources.find((source) => source.id === 'samsung-health');
-  const screenSource = dataSources.find((source) => source.id === 'screen-time');
+  const calendarSource = dataSources?.find((s) => s.id === 'google-calendar');
+  const healthSource = dataSources?.find((s) => s.id === 'apple-health');
+  const academicSource = dataSources?.find((s) => s.id === 'academic-tasks');
   const isAccepted = intervention?.status === 'accepted';
-  const baselineRisk = prediction.baselineRiskScore || prediction.currentRiskScore;
+  const baselineRisk = prediction?.baselineRiskScore || prediction?.currentRiskScore || 75;
+
   const steps = [
     {
-      icon: 'heart-rate-monitor',
-      label: '몸 상태',
-      title: `수면 ${healthData.sleepHours}h · 스트레스 ${healthData.stressScore}점`,
-      body: `${healthSource?.source || 'Health'}에서 회복 여력이 낮게 잡혔습니다. 같은 업무량도 오늘은 더 크게 부담으로 작용합니다.`,
+      icon: 'heart',
+      label: '컨디션',
+      title: `수면 ${healthData?.sleepHours ?? '-'}h · 걸음 ${healthData?.steps?.toLocaleString() ?? '-'}보`,
+      body: `${healthSource?.source || 'Apple Health'} 기준으로 회복 여력이 낮습니다. 같은 일정도 오늘은 더 부담됩니다.`,
       tone: 'risk',
     },
     {
       icon: 'calendar-time',
       label: '일정 압박',
-      title: `${prediction.predictedPeakRiskTime} 회의 과밀`,
-      body: `${calendarSource?.source || 'Calendar'} 기준으로 오후 일정이 연속됩니다. 쉬는 시간이 끊기면 피크 위험이 올라갑니다.`,
+      title: `${prediction?.predictedPeakRiskTime ?? '18:00~23:00'} 과부하 구간`,
+      body: `${calendarSource?.source || 'Google Calendar'} 기준으로 알바·수업이 겹쳐 자유 시간이 없습니다.`,
       tone: 'warning',
     },
     {
-      icon: 'device-mobile',
-      label: '집중 방해',
-      title: screenSource?.usedSignals?.slice(0, 2).join(' · ') || '야간 사용 · 앱 전환 증가',
-      body: `${screenSource?.source || 'Screen Time'} 신호는 수면 회복과 다음 날 집중 유지에 부담을 줍니다.`,
+      icon: 'school',
+      label: '학사 마감',
+      title: academicSource?.usedSignals?.slice(0, 2).join(' · ') || '시험 D-3 · 과제 D-2',
+      body: `${academicSource?.source || '학사 일정'} 기준으로 마감 전 준비 시간이 오늘 확보되어야 합니다.`,
       tone: 'ai',
     },
     {
       icon: 'sparkles',
-      label: 'AI 판단',
-      title: `위험도 ${baselineRisk} → ${prediction.currentRiskScore}`,
+      label: 'AI 재설계',
+      title: isAccepted
+        ? `과부하 지수 ${baselineRisk} → ${prediction?.currentRiskScore ?? '-'}`
+        : `추천 수락 시 과부하 지수 ${baselineRisk} → ${prediction?.riskAfterIntervention ?? '-'}`,
       body: isAccepted
-        ? `${intervention?.title || 'Recovery Block'}이 반영되어 피크 위험 예측이 내려갔습니다.`
-        : `${intervention?.title || 'Recovery Block'}을 넣으면 피크 위험을 낮출 수 있습니다.`,
+        ? `${intervention?.title || 'AI 추천'}이 캘린더에 반영됐습니다.`
+        : `${intervention?.title || 'AI 추천'}을 수락하면 오늘 일정 실행 가능성이 올라갑니다.`,
       tone: 'ai',
     },
   ];
@@ -40,7 +43,7 @@ export default function EvidenceReasoningCard({ prediction, healthData, dataSour
   return (
     <section className="mx-4 mt-3 rounded-[24px] border border-border bg-card p-5 shadow-sm">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">판단 흐름</p>
-      <h2 className="mt-1 text-[18px] font-semibold text-text-primary">왜 지금 회복 행동이 필요한가</h2>
+      <h2 className="mt-1 text-[18px] font-semibold text-text-primary">왜 지금 일정 재설계가 필요한가</h2>
       <div className="mt-4 grid gap-3">
         {steps.map((step, index) => (
           <ReasonStep key={step.label} step={step} index={index} isLast={index === steps.length - 1} />

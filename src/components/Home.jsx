@@ -11,6 +11,7 @@ export default function Home({
   overload,
   health,
   calendarSummary,
+  calendarEvents,
   academicTasks,
   dataSources,
   dayEvents,
@@ -28,7 +29,10 @@ export default function Home({
         ...overload,
         currentRiskScore: displayedScore,
         baselineRiskScore: overload.currentRiskScore,
-        riskAfterIntervention: Math.max(overload.currentRiskScore - (primaryRecommendation?.riskReduction ?? overload.preventionImpactScore ?? 0), 0),
+        riskAfterIntervention: Math.max(
+          overload.currentRiskScore - (primaryRecommendation?.riskReduction ?? overload.preventionImpactScore ?? 0),
+          0,
+        ),
         acceptedReduction,
       }
     : null;
@@ -46,12 +50,14 @@ export default function Home({
         intervention={primaryRecommendation}
         currentRiskScore={displayedScore}
         baselineRiskScore={overload?.currentRiskScore}
+        calendarEvents={calendarEvents}
         onAccept={acceptRecommendation}
+        onMove={moveRecommendation}
         onDelay={delayRecommendation}
         onDismiss={dismissRecommendation}
       />
       <WhyAiThinksCards factors={overload?.mainRiskFactors ?? []} />
-      <RootCauseCard dailyEvents={dayEvents} healthData={health} />
+      <RootCauseCard dailyEvents={dayEvents} healthData={health} academicTasks={academicTasks} />
       <HealthcareStatus data={health} />
       <DataEvidencePanel sources={dataSources} />
       <EvidenceReasoningCard
@@ -60,7 +66,14 @@ export default function Home({
         dataSources={dataSources}
         intervention={primaryRecommendation}
       />
-      <RecommendationQueue recommendations={secondaryRecommendations} />
+      <RecommendationQueue
+        recommendations={secondaryRecommendations}
+        calendarEvents={calendarEvents}
+        acceptRecommendation={acceptRecommendation}
+        moveRecommendation={moveRecommendation}
+        delayRecommendation={delayRecommendation}
+        dismissRecommendation={dismissRecommendation}
+      />
     </main>
   );
 }

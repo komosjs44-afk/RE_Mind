@@ -5,50 +5,47 @@ export function getRiskLevel(score) {
 }
 
 export function getRiskLabel(score) {
-  const labels = {
-    recovery: '회복',
-    warning: '주의',
-    risk: '위험',
-  };
-
-  return labels[getRiskLevel(score)];
+  return { recovery: '회복', warning: '주의', risk: '위험' }[getRiskLevel(score)];
 }
 
 export function getRiskColor(score) {
-  const colors = {
-    recovery: 'text-healthy',
-    warning: 'text-warning',
-    risk: 'text-risk',
-  };
-
-  return colors[getRiskLevel(score)];
+  return { recovery: 'text-healthy', warning: 'text-warning', risk: 'text-risk' }[getRiskLevel(score)];
 }
 
 export function calculateRiskDelta(current, after) {
   return Math.max(Number(current || 0) - Number(after || 0), 0);
 }
 
-export function buildRiskReasons({ dailyEvents = [], healthData = {}, screenData = {} }) {
-  const meetingCount = dailyEvents.filter((event) => event.sub?.includes('회의') || event.title?.includes('미팅')).length;
-  const riskEvents = dailyEvents.filter((event) => event.risk).length;
+export function buildRiskReasons({ dailyEvents = [], healthData = {}, academicTasks = [] }) {
+  const meetingCount = dailyEvents.filter((e) => e.type === 'meeting' || e.sub?.includes('회의')).length;
+  const workEvents = dailyEvents.filter((e) => e.type === 'work');
+  const workHours = workEvents.reduce((sum, e) => {
+    if (!e.time || !e.endTime) return sum + 3;
+    const start = parseInt(e.time.split(':')[0]) * 60 + parseInt(e.time.split(':')[1]);
+    const end = parseInt(e.endTime.split(':')[0]) * 60 + parseInt(e.endTime.split(':')[1]);
+    return sum + (end - start) / 60;
+  }, 0);
+  const urgentTasks = academicTasks.filter((t) => t.daysLeft <= 3);
 
   return [
     {
-      source: 'Calendar',
+      source: 'Google Calendar',
       title: '일정 밀도',
-      reason: `오늘 회의/미팅 ${meetingCount}개와 위험 구간 일정 ${riskEvents}개가 겹칩니다.`,
+      reason: `오늘 알바 ${workHours > 0 ? workHours + '시간' : '일정'}과 수업·팀플 ${meetingCount}개가 겹쳐 자유 시간이 부족합니다.`,
       tone: 'warning',
     },
     {
-      source: 'Samsung Health',
+      source: 'Apple Health',
       title: '회복 여력',
-      reason: `수면 ${healthData.sleepHours || '-'}h, HRV ${healthData.hrv || '-'}ms로 회복 신호가 낮습니다.`,
+      reason: `수면 ${healthData.sleepHours || '-'}h, 걸음 ${healthData.steps?.toLocaleString() || '-'}보로 컨디션 회복이 필요한 상태입니다.`,
       tone: 'risk',
     },
     {
-      source: 'Screen Data',
-      title: '집중 방해',
-      reason: `야간 사용 ${screenData.lateNightUsage || '-'}, 픽업 ${screenData.pickupCount || '-'}회가 다음 날 집중에 부담을 줍니다.`,
+      source: '학사 일정',
+      title: '마감 임박',
+      reason: urgentTasks.length > 0
+        ? `${urgentTasks.map((t) => `${t.title} D-${t.daysLeft}`).join(', ')}으로 오늘 준비 시간이 필요합니다.`
+        : '이번 주 주요 마감이 없어 일정 여유가 있습니다.',
       tone: 'ai',
     },
   ];
@@ -58,9 +55,9 @@ export function getPrimaryIntervention(aiInterventions = []) {
   return [...aiInterventions].sort((a, b) => (b.riskReduction || 0) - (a.riskReduction || 0))[0] || null;
 }
 
-export function buildTimelineItems(dailyEvents = [], aiInterventions = []) {
+export function buildTimelineItems(dailyPlan = [], aiRecommendations = []) {
   return [
-    ...dailyEvents,
-    ...aiInterventions.map((item) => ({ ...item, type: 'ai' })),
+    ...dailyPlan,
+    ...aiRecommendations.map((item) => ({ ...item, type: 'ai' })),
   ].sort((a, b) => String(a.time).localeCompare(String(b.time)));
 }
