@@ -1,24 +1,32 @@
 {
   "expo": {
-    "name": "re-plan",
+    "name": "RE:Plan",
     "slug": "re-plan",
     "version": "1.0.0",
+    "scheme": "re-plan",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.replan.app"
     },
     "android": {
+      "package": "com.replan.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#FAF8F4",
+        "foregroundImage": "./assets/icon.png"
       }
     },
     "web": {
+      "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": false
     }
   }
 }
