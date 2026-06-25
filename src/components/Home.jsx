@@ -1,60 +1,66 @@
-import HeroRiskCard from './home/HeroRiskCard';
+import TodayConditionCard from './home/TodayConditionCard';
 import TodayActionCard from './home/TodayActionCard';
 import WhyAiThinksCards from './home/WhyAiThinksCards';
 import RootCauseCard from './home/RootCauseCard';
 import HealthcareStatus from './home/HealthcareStatus';
-import EvidenceReasoningCard from './home/EvidenceReasoningCard';
 import DataEvidencePanel from './home/DataEvidencePanel';
-import PreventionQueue from './home/PreventionQueue';
+import EvidenceReasoningCard from './home/EvidenceReasoningCard';
+import RecommendationQueue from './home/RecommendationQueue';
 
 export default function Home({
-  prediction,
-  healthData,
-  screenData,
+  overload,
+  health,
+  calendarSummary,
+  academicTasks,
   dataSources,
   dayEvents,
-  primaryIntervention,
-  secondaryInterventions,
-  acceptIntervention,
-  moveIntervention,
-  delayIntervention,
-  dismissIntervention,
+  primaryRecommendation,
+  secondaryRecommendations,
+  acceptRecommendation,
+  moveRecommendation,
+  delayRecommendation,
+  dismissRecommendation,
 }) {
-  const acceptedRiskReduction = primaryIntervention?.status === 'accepted' ? primaryIntervention.riskReduction : 0;
-  const displayedRiskScore = Math.max(prediction.currentRiskScore - acceptedRiskReduction, 0);
-  const effectivePrediction = {
-    ...prediction,
-    currentRiskScore: displayedRiskScore,
-    baselineRiskScore: prediction.currentRiskScore,
-    riskAfterIntervention: Math.max(prediction.currentRiskScore - (primaryIntervention?.riskReduction || prediction.preventionImpactScore), 0),
-    acceptedRiskReduction,
-  };
+  const acceptedReduction = primaryRecommendation?.status === 'accepted' ? primaryRecommendation.riskReduction : 0;
+  const displayedScore = Math.max((overload?.currentRiskScore ?? 0) - acceptedReduction, 0);
+  const effectiveOverload = overload
+    ? {
+        ...overload,
+        currentRiskScore: displayedScore,
+        baselineRiskScore: overload.currentRiskScore,
+        riskAfterIntervention: Math.max(overload.currentRiskScore - (primaryRecommendation?.riskReduction ?? overload.preventionImpactScore ?? 0), 0),
+        acceptedReduction,
+      }
+    : null;
 
   return (
     <main className="page no-scrollbar h-[calc(100%-112px)] overflow-y-auto pb-24">
-      <HeroRiskCard prediction={effectivePrediction} intervention={primaryIntervention} onAccept={acceptIntervention} />
+      <TodayConditionCard
+        health={health}
+        calendar={calendarSummary}
+        academicTasks={academicTasks}
+        recommendation={primaryRecommendation}
+        onAccept={acceptRecommendation}
+      />
       <TodayActionCard
-        intervention={primaryIntervention}
-        currentRiskScore={displayedRiskScore}
-        baselineRiskScore={prediction.currentRiskScore}
-        onAccept={acceptIntervention}
-        onDelay={delayIntervention}
-        onDismiss={dismissIntervention}
+        intervention={primaryRecommendation}
+        currentRiskScore={displayedScore}
+        baselineRiskScore={overload?.currentRiskScore}
+        onAccept={acceptRecommendation}
+        onDelay={delayRecommendation}
+        onDismiss={dismissRecommendation}
       />
-      <WhyAiThinksCards factors={prediction.mainRiskFactors} />
-      <RootCauseCard dailyEvents={dayEvents} healthData={healthData} screenData={screenData} />
-      <HealthcareStatus data={healthData} prediction={prediction} />
+      <WhyAiThinksCards factors={overload?.mainRiskFactors ?? []} />
+      <RootCauseCard dailyEvents={dayEvents} healthData={health} />
+      <HealthcareStatus data={health} />
       <DataEvidencePanel sources={dataSources} />
-      <EvidenceReasoningCard prediction={effectivePrediction} healthData={healthData} dataSources={dataSources} intervention={primaryIntervention} />
-      <PreventionQueue
-        interventions={secondaryInterventions}
-        currentRiskScore={displayedRiskScore}
-        acceptIntervention={acceptIntervention}
-        moveIntervention={moveIntervention}
-        delayIntervention={delayIntervention}
-        dismissIntervention={dismissIntervention}
-        compact
+      <EvidenceReasoningCard
+        prediction={effectiveOverload}
+        healthData={health}
+        dataSources={dataSources}
+        intervention={primaryRecommendation}
       />
+      <RecommendationQueue recommendations={secondaryRecommendations} />
     </main>
   );
 }

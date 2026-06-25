@@ -1,212 +1,241 @@
+// ─── 시나리오 ───────────────────────────────────────────────────────────────
 export const scenarios = {
-  elevated: '과부하',
+  elevated: '일정 과부하',
   balanced: '균형',
   restored: '회복',
 };
 
-export const healthData = {
+// ─── 건강 요약 (Apple Health / 수동 입력) ─────────────────────────────────
+export const healthSummary = {
   elevated: {
-    sleepHours: 5.4,
-    stressScore: 74,
-    steps: 3200,
-    energyScore: 44,
-    hrv: 38,
-    restingHeartRate: 73,
-    sleepDebt: 1.6,
+    date: '2026-06-25',
+    sleepHours: 4.5,
+    steps: 6200,
+    fatigueLevel: 4,   // 1~5
+    source: 'manual',  // 'healthkit' | 'manual'
   },
 };
 
-export const screenTimeData = {
+// ─── 학사 일정 ───────────────────────────────────────────────────────────────
+export const academicTasks = [
+  {
+    id: 'task_1',
+    title: '데이터사이언스 과제',
+    type: 'assignment',
+    dueDate: '2026-06-27',
+    estimatedMinutes: 120,
+    priority: 'high',
+    daysLeft: 2,
+  },
+  {
+    id: 'exam_1',
+    title: '운영체제 시험',
+    type: 'exam',
+    dueDate: '2026-06-28',
+    estimatedMinutes: 180,
+    priority: 'high',
+    daysLeft: 3,
+  },
+  {
+    id: 'task_2',
+    title: '알고리즘 과제',
+    type: 'assignment',
+    dueDate: '2026-06-30',
+    estimatedMinutes: 90,
+    priority: 'medium',
+    daysLeft: 5,
+  },
+  {
+    id: 'pres_1',
+    title: '팀프로젝트 발표',
+    type: 'presentation',
+    dueDate: '2026-07-02',
+    estimatedMinutes: 60,
+    priority: 'medium',
+    daysLeft: 7,
+  },
+];
+
+// ─── 일간 캘린더 이벤트 배열 ─────────────────────────────────────────────────
+export const calendarEvents = {
+  elevated: [
+    { time: '09:00', title: '아침 식사', type: 'personal' },
+    { time: '10:00', endTime: '11:30', title: '알고리즘 강의', type: 'class', source: 'google_calendar' },
+    { time: '12:00', title: '점심', type: 'personal' },
+    { time: '13:00', endTime: '14:30', title: '팀플 미팅', type: 'meeting', source: 'google_calendar' },
+    { time: '15:00', title: '자유 시간', type: 'free' },
+    { time: '18:00', endTime: '23:00', title: '알바', type: 'work', source: 'google_calendar', risk: true },
+  ],
+};
+
+// ─── 캘린더 요약 (집계) ─────────────────────────────────────────────────────
+export const calendarSummary = {
   elevated: {
-    totalScreenTime: '6시간 42분',
-    lateNightUsage: '48분',
-    socialMediaMinutes: 92,
-    shortFormMinutes: 64,
-    productivityMinutes: 142,
-    pickupCount: 86,
-    focusBreaks: 18,
-    sleepInterferenceRisk: '높음',
+    totalCount: 6,
+    workHours: 5,
+    classHours: 1.5,
+    meetingCount: 1,
+    freeSlots: ['11:30~12:00', '14:30~15:00', '15:00~18:00'],
+    overloadTimeRange: '18:00~23:00',
+    tomorrowRiskEvents: ['운영체제 시험 D-2', '알바 연속 예정'],
   },
 };
 
-export const calendarData = {
+// ─── 일정 과부하 분석 (burnoutPrediction 대체) ───────────────────────────────
+export const overloadAnalysis = {
   elevated: {
-    meetingCount: 9,
-    continuousMeetingBlocks: 5,
-    focusTimeAvailable: '35분',
-    breakSlots: ['12:20'],
-    lateEvents: 2,
-    overloadTimeRange: '15:00~17:00',
-    tomorrowRiskEvents: ['오전 리뷰 회의 3개 연속', '18:30 이후 광고 미팅'],
-  },
-};
-
-export const burnoutPrediction = {
-  elevated: {
-    currentRiskScore: 72,
-    predictedPeakRiskTime: '15:00~17:00',
-    predictedPeakRiskScore: 81,
+    currentRiskScore: 75,
+    predictedPeakRiskTime: '18:00~23:00',
+    predictedPeakRiskScore: 85,
     mainRiskFactors: [
-      { title: '수면 부족', detail: '최근 평균 대비 -1.3시간', source: 'health' },
-      { title: '야간 스크린 타임 증가', detail: '01:00 이후 사용 48분', source: 'screentime' },
-      { title: '오후 회의 과밀', detail: '14:00~17:00 회의 연속', source: 'calendar' },
+      { title: '수면 부족', detail: '4.5h (권장 7h 대비 -2.5h)', source: 'health' },
+      { title: '시험 D-3 + 알바 충돌', detail: '오늘 알바 5시간, 시험 준비 불가', source: 'academic' },
+      { title: '과제 마감 D-2', detail: '데이터사이언스 과제 120분 필요', source: 'calendar' },
     ],
-    preventionImpactScore: 23,
-    riskAfterIntervention: 49,
-    confidence: 86,
+    preventionImpactScore: 20,
+    riskAfterIntervention: 55,
+    confidence: 82,
   },
 };
 
+// ─── AI 일정 재설계 추천 ──────────────────────────────────────────────────────
+export const aiPlanRecommendations = {
+  elevated: [
+    {
+      id: 'r1',
+      time: '15:30',
+      endTime: '17:30',
+      title: '알바 전 2시간 시험 복습 블록',
+      type: 'study',
+      source: 'combined',
+      reason: '오늘 알바가 18시부터라 복습할 수 있는 마지막 시간대는 15:30~17:30입니다. 지금 배치하지 않으면 시험 전날 밤 벼락치기가 불가피합니다.',
+      evidence: '수면 4.5h, 시험 D-3, 알바 18:00~23:00',
+      consequence: '복습 블록 없이 알바로 넘어가면 시험 전날 컨디션이 더 낮은 상태에서 벼락치기를 해야 합니다.',
+      expectedEffect: '시험 준비 분산 · 실행 가능성 증가',
+      riskReduction: 15,
+      status: 'active',
+      actionType: 'schedule_add',
+      alternatives: ['14:00', '16:00', '17:00'],
+    },
+    {
+      id: 'r2',
+      time: '11:30',
+      endTime: '12:00',
+      title: '수업 후 30분 과제 시작',
+      type: 'task',
+      source: 'academic',
+      reason: '알고리즘 수업 직후 11:30에 데이터사이언스 과제를 30분만 시작하면 마감 전날 몰아치기를 피할 수 있습니다.',
+      evidence: '데이터사이언스 과제 D-2, 오전 수업 11:30 종료',
+      consequence: '오늘 시작하지 않으면 D-1에 과제 + 시험 준비가 동시에 겹칩니다.',
+      expectedEffect: '과제 마감 리스크 완화',
+      riskReduction: 12,
+      status: 'active',
+      actionType: 'schedule_add',
+      alternatives: ['13:00', '14:30'],
+    },
+    {
+      id: 'r3',
+      time: '23:30',
+      endTime: '00:00',
+      title: '알바 귀가 후 수면 우선 루틴',
+      type: 'recovery',
+      source: 'health',
+      reason: '어제도 알바 후 01:30 취침 패턴이었습니다. 오늘은 귀가 즉시 수면 준비를 시작해야 합니다.',
+      evidence: '수면 4.5h 연속, 시험 D-3',
+      consequence: '오늘도 늦게 자면 시험 전날 컨디션이 더 낮아집니다.',
+      expectedEffect: '수면 개선 · 시험 전날 컨디션 회복',
+      riskReduction: 10,
+      status: 'active',
+      actionType: 'habit',
+      alternatives: [],
+    },
+  ],
+};
+
+// ─── 오늘 일정 (calendarEvents + 기타 통합 뷰용) ─────────────────────────────
+export const dailyPlan = {
+  elevated: [
+    { time: '09:00', title: '아침 식사', type: 'personal' },
+    { time: '10:00', title: '알고리즘 강의', sub: '1시간 30분 수업', type: 'class' },
+    { time: '12:00', title: '점심', sub: '30분', type: 'personal' },
+    { time: '13:00', title: '팀플 미팅', sub: '1시간 30분', type: 'meeting' },
+    { time: '18:00', title: '알바', sub: '5시간', type: 'work', risk: true },
+  ],
+};
+
+// ─── 데이터 소스 요약 (연동 센터) ──────────────────────────────────────────
 export const dataSourceSummary = {
   elevated: [
+    {
+      id: 'apple-health',
+      source: 'Apple Health',
+      status: '샘플 데이터 기반',
+      syncState: 'sample',
+      lastSyncedAt: '오늘 07:30',
+      icon: 'heart',
+      note: '수면과 걸음 수를 일정 과부하 판단에 반영',
+      usedSignals: ['수면 4.5h', '걸음수 6,200보', '피로도 4/5'],
+      impact: 35,
+      impactLabel: '과부하 +35%',
+    },
     {
       id: 'google-calendar',
       source: 'Google Calendar',
       status: '샘플 데이터 기반',
       syncState: 'sample',
-      lastSyncedAt: '오늘 08:42',
+      lastSyncedAt: '오늘 08:00',
       icon: 'calendar',
-      note: '회의 밀도와 과밀 시간대를 예측에 반영',
-      usedSignals: ['오늘 일정 13개', '연속 회의 블록 5개', '집중 가능 시간 35분'],
-      impact: 38,
-      impactLabel: '위험도 +38%',
+      note: '수업, 알바, 팀플 일정을 AI 재설계에 반영',
+      usedSignals: ['알바 5시간', '강의 1.5시간', '팀플 1.5시간'],
+      impact: 40,
+      impactLabel: '과부하 +40%',
     },
     {
-      id: 'samsung-health',
-      source: 'Samsung Health',
-      status: '샘플 데이터 기반',
-      syncState: 'sample',
-      lastSyncedAt: '오늘 07:58',
-      icon: 'heart-rate-monitor',
-      note: '수면, HRV, 회복 신호를 분석',
-      usedSignals: ['수면 5.4h', 'HRV 38ms', '스트레스 74점'],
-      impact: 34,
-      impactLabel: '위험도 +34%',
-    },
-    {
-      id: 'screen-time',
-      source: 'Screen Time',
-      status: '연동 예정',
-      syncState: 'planned',
-      lastSyncedAt: '오늘 08:10',
-      icon: 'device-mobile',
-      note: '야간 사용과 앱 전환 패턴을 반영',
-      usedSignals: ['야간 사용 48분', '픽업 86회', '집중 중단 18회'],
-      impact: 28,
-      impactLabel: '위험도 +28%',
+      id: 'academic-tasks',
+      source: '학사 일정',
+      status: '수동 입력',
+      syncState: 'manual',
+      lastSyncedAt: '어제 23:00',
+      icon: 'school',
+      note: '과제와 시험 마감일을 일정 우선순위에 반영',
+      usedSignals: ['운영체제 시험 D-3', '데이터사이언스 과제 D-2', '알고리즘 과제 D-5'],
+      impact: 25,
+      impactLabel: '과부하 +25%',
     },
   ],
 };
 
-export const aiInterventions = {
-  elevated: [
-    {
-      id: 'a1',
-      time: '09:55',
-      title: '10분 호흡 리셋',
-      type: 'recovery',
-      source: 'combined',
-      reason: '회복 없이 오전 회의가 이어져 긴장도가 빠르게 올라갈 수 있습니다.',
-      evidence: '수면 5.4시간, 스트레스 74점, 09:00 회의 직후',
-      consequence: '지금 풀지 않으면 오전 내내 긴장도가 누적되어 오후 회의 전에 이미 지친 상태로 들어갑니다.',
-      expectedEffect: '오전 과부하 상승을 완만하게 조정',
-      riskReduction: 6,
-      status: 'pending',
-      alternatives: ['10:10', '12:30', '17:50'],
-    },
-    {
-      id: 'a2',
-      time: '12:20',
-      title: '30분 Recovery Block',
-      type: 'movement',
-      source: 'health',
-      reason: '점심 직후 회복 블록을 넣으면 15:00 이후 위험도가 72에서 49로 낮아질 가능성이 큽니다.',
-      evidence: '3,200보, 에너지 44점, 오후 연속 회의 예정',
-      consequence: '회복 블록 없이 오후로 넘어가면 연속 회의 구간에서 에너지가 먼저 바닥나 집중 붕괴로 이어질 수 있습니다.',
-      expectedEffect: '오후 에너지 회복과 집중 유지 보조',
-      riskReduction: 23,
-      status: 'pending',
-      alternatives: ['12:45', '13:10', '18:30'],
-    },
-    {
-      id: 'a3',
-      time: '15:50',
-      title: '집중 알림 줄이기',
-      type: 'focus',
-      source: 'combined',
-      reason: '15:00~17:00 구간은 회의와 앱 전환이 겹쳐 집중 붕괴 가능성이 가장 높습니다.',
-      evidence: '회의 3개 연속, 픽업 86회, 집중 중단 18회',
-      consequence: '알림을 그대로 두면 회의 사이마다 집중이 끊겨 피크 시간대 위험도가 81점까지 올라갈 수 있습니다.',
-      expectedEffect: '피크 시간대 집중 이탈 완화',
-      riskReduction: 9,
-      status: 'pending',
-      alternatives: ['16:05', '16:30', '17:00'],
-    },
-  ],
-};
-
-export const dailyEvents = {
-  elevated: [
-    { time: '08:30', title: '출근 직후 메일 정리', sub: '30분', type: 'normal' },
-    { time: '09:00', title: '팀 스탠드업', sub: '30분 회의', type: 'normal' },
-    { time: '09:40', title: '긴급 요청 확인', sub: '20분', type: 'normal' },
-    { time: '10:10', title: '마케팅 싱크', sub: '40분 회의', type: 'normal' },
-    { time: '11:00', title: '고객 피드백 리뷰', sub: '45분 회의', type: 'normal' },
-    { time: '12:00', title: '점심 이동', sub: '30분', type: 'normal' },
-    { time: '13:00', title: '보고서 수정', sub: '40분 집중 업무', type: 'normal' },
-    { time: '13:45', title: '디자인 검토', sub: '30분 회의', type: 'normal' },
-    { time: '14:20', title: '제품 리뷰 회의', sub: '40분', type: 'normal', risk: true },
-    { time: '15:00', title: '파트너 미팅', sub: '1시간', type: 'normal', risk: true },
-    { time: '16:00', title: '주간 의사결정 회의', sub: '1시간', type: 'normal', risk: true },
-    { time: '17:10', title: '후속 액션 정리', sub: '30분', type: 'normal' },
-    { time: '18:00', title: '광고 미팅 준비', sub: '45분', type: 'normal', risk: true },
-  ],
-};
-
-export const burnoutReport = {
+// ─── 주간 컨디션 리포트 (burnoutReport 대체) ─────────────────────────────────
+export const conditionReport = {
   weeklyTrend: [
-    { day: '월', score: 58 },
-    { day: '화', score: 64 },
-    { day: '수', score: 77 },
-    { day: '목', score: 74 },
-    { day: '금', score: 69 },
-    { day: '토', score: 42 },
-    { day: '오늘', score: 72 },
+    { day: '월', score: 45 },
+    { day: '화', score: 58 },
+    { day: '수', score: 67 },
+    { day: '목', score: 72 },
+    { day: '금', score: 61 },
+    { day: '토', score: 38 },
+    { day: '오늘', score: 75 },
   ],
   sourceImpact: [
-    { source: 'Calendar', value: 38, detail: '오후 회의 과밀' },
-    { source: 'Health', value: 34, detail: '수면 부족과 HRV 저하' },
-    { source: 'Screen Time', value: 28, detail: '야간 사용과 잦은 앱 전환' },
+    { source: 'Google Calendar', value: 40, detail: '알바 5h + 수업 겹침' },
+    { source: 'Apple Health', value: 35, detail: '수면 4.5h, 회복 여력 낮음' },
+    { source: '학사 일정', value: 25, detail: '시험 D-3, 과제 마감 D-2' },
   ],
   repeatedPatterns: [
-    '수요일과 목요일 오후에 위험도가 반복적으로 상승했습니다.',
-    '수면이 6시간 아래로 내려간 다음 날 집중 중단이 증가했습니다.',
-    '01:00 이후 영상 사용 다음 날 스트레스 점수가 상승했습니다.',
+    '알바 다음 날 수면이 짧아지는 패턴이 반복됩니다.',
+    '시험 전주에 일정 밀도가 급격히 증가했습니다.',
+    '수업 연속 구간 이후 과제 시작이 늦어지는 경향이 있습니다.',
   ],
   nextWeekPrediction: [
-    { day: '월', label: '낮음', score: 39 },
-    { day: '화', label: '주의', score: 51 },
-    { day: '수', label: '높음', score: 68 },
-    { day: '목', label: '높음', score: 71 },
-    { day: '금', label: '주의', score: 56 },
+    { day: '월', label: '주의', score: 52 },
+    { day: '화', label: '높음', score: 68 },
+    { day: '수', label: '높음', score: 73 },
+    { day: '목', label: '매우 높음', score: 82 },
+    { day: '금', label: '주의', score: 55 },
   ],
   preventionEffects: [
-    { action: '오후 회의 전 15분 휴식', effect: '피크 위험 -9' },
-    { action: '야간 앱 제한 30분 앞당김', effect: '수면 방해 위험 -14%' },
-    { action: '점심 산책 루틴', effect: '오후 에너지 +11' },
-  ],
-};
-
-export const personalization = {
-  integrations: [
-    ['Google Calendar', '샘플 데이터 기반'],
-    ['Samsung Health', '샘플 데이터 기반'],
-    ['Screen Time', '연동 예정'],
-  ],
-  preferences: [
-    ['선호 회복 루틴', '짧은 산책, 호흡, 스트레칭'],
-    ['집중 선호 시간', '09:30~11:30'],
-    ['알림 회피 시간', '22:30~07:30'],
-    ['야간 스크린 목표', '자정 이후 사용 20분 이하'],
+    { action: '알바 전 복습 블록 2시간', effect: '시험 과부하 -15' },
+    { action: '수업 후 과제 30분 시작', effect: '마감 리스크 완화' },
+    { action: '귀가 후 수면 우선 루틴', effect: '수면 개선 +1h' },
   ],
 };

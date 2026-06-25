@@ -7,24 +7,19 @@ const defaultSources = dataSourceSummary.elevated;
 export default function ConnectedSources() {
   const [sources, setSources] = useState(loadSources);
 
-  const updateSources = (nextSources) => {
-    setSources(nextSources);
-    saveSources(nextSources);
-  };
-
   const toggleSource = (id) => {
-    updateSources(
-      sources.map((item) => (
-        item.id === id
-          ? {
-              ...item,
-              enabled: item.enabled === false,
-              status: item.enabled === false ? '샘플 데이터 기반' : '연결 해제',
-              syncState: item.enabled === false ? 'sample' : 'paused',
-            }
-          : item
-      )),
+    const next = sources.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            enabled: item.enabled === false,
+            status: item.enabled === false ? (item.syncState === 'manual' ? '수동 입력' : '샘플 데이터 기반') : '연결 해제',
+            syncState: item.enabled === false ? item.originalSyncState ?? item.syncState : 'paused',
+          }
+        : item,
     );
+    setSources(next);
+    saveSources(next);
   };
 
   return (
@@ -32,7 +27,7 @@ export default function ConnectedSources() {
       <div className="flex items-start justify-between gap-3">
         <div>
           <span className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">연동 센터</span>
-          <h2 className="mt-1 text-[17px] font-semibold text-text-primary">AI 판단에 쓰이는 데이터 출처</h2>
+          <h2 className="mt-1 text-[17px] font-semibold text-text-primary">AI 재설계에 쓰이는 데이터 출처</h2>
         </div>
         <span className="rounded-full bg-ai-soft px-3 py-1 text-[11px] font-semibold text-ai">
           {sources.filter((item) => item.enabled !== false).length}개 활성
@@ -44,13 +39,21 @@ export default function ConnectedSources() {
           <SourceCard key={item.id} item={item} onToggle={() => toggleSource(item.id)} />
         ))}
       </div>
+
+      <div className="mt-4 rounded-[18px] bg-bg p-3">
+        <p className="text-[11px] font-semibold text-text-secondary">Coming Soon</p>
+        <p className="mt-1 text-[12px] text-text-secondary">Samsung Health · Screen Time 연동은 추후 지원 예정입니다.</p>
+      </div>
     </section>
   );
 }
 
 function SourceCard({ item, onToggle }) {
   const enabled = item.enabled !== false;
-  const stateLabel = item.syncState === 'planned' ? '연동 예정' : item.syncState === 'paused' ? '일시 중지' : item.status;
+  const stateLabel =
+    item.syncState === 'paused' ? '일시 중지' :
+    item.syncState === 'manual' ? '수동 입력' :
+    item.status;
 
   return (
     <article className="rounded-[18px] bg-bg p-3.5">
@@ -82,7 +85,7 @@ function SourceCard({ item, onToggle }) {
       </div>
       <div className="mt-3 flex items-center justify-between rounded-[14px] bg-card px-3 py-2">
         <span className="text-[10px] font-semibold text-text-secondary">오늘 판단 영향</span>
-        <span className="text-[12px] font-semibold text-risk">{item.impactLabel}</span>
+        <span className="text-[12px] font-semibold text-warning">{item.impactLabel}</span>
       </div>
     </article>
   );
@@ -90,29 +93,23 @@ function SourceCard({ item, onToggle }) {
 
 function loadSources() {
   if (typeof window === 'undefined') return defaultSources;
-
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    return saved ? mergeSavedSources(JSON.parse(saved)) : defaultSources;
-  } catch (error) {
-    console.error('Failed to load connected sources', error);
+    return saved ? mergeSaved(JSON.parse(saved)) : defaultSources;
+  } catch {
     return defaultSources;
   }
 }
 
-function mergeSavedSources(saved) {
+function mergeSaved(saved) {
   return defaultSources.map((source) => ({
     ...source,
+    originalSyncState: source.syncState,
     ...(saved.find((item) => item.id === source.id) || {}),
   }));
 }
 
-function saveSources(nextSources) {
+function saveSources(sources) {
   if (typeof window === 'undefined') return;
-
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSources));
-  } catch (error) {
-    console.error('Failed to save connected sources', error);
-  }
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sources));
 }

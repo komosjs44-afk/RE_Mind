@@ -1,6 +1,15 @@
 import { useMemo, useRef, useState } from 'react';
-import { aiInterventions, burnoutPrediction, calendarData, dailyEvents, healthData, screenTimeData, dataSourceSummary } from './data/schedule';
-import { useInterventionState } from './hooks/useInterventionState';
+import {
+  overloadAnalysis,
+  aiPlanRecommendations,
+  calendarSummary,
+  calendarEvents,
+  dailyPlan,
+  healthSummary,
+  dataSourceSummary,
+  academicTasks,
+} from './data/schedule';
+import { usePlanRecommendationState } from './hooks/usePlanRecommendationState';
 import { parseTime } from './utils/time';
 import StartScreen from './components/onboarding/StartScreen';
 import Header from './components/Header';
@@ -35,32 +44,32 @@ export default function App() {
   };
 
   const {
-    allInterventions,
-    interventions,
-    primaryIntervention,
-    secondaryInterventions,
-    acceptIntervention,
-    moveIntervention,
-    delayIntervention,
-    dismissIntervention,
-  } = useInterventionState({
-    baseInterventions: aiInterventions[scenario],
+    allRecommendations,
+    recommendations,
+    primaryRecommendation,
+    secondaryRecommendations,
+    acceptRecommendation,
+    moveRecommendation,
+    delayRecommendation,
+    dismissRecommendation,
+  } = usePlanRecommendationState({
+    baseRecommendations: aiPlanRecommendations[scenario],
     showToast,
     closeToast,
   });
 
   const timelineEvents = useMemo(() => {
-    return [...dailyEvents[scenario], ...interventions.map((item) => ({ ...item, type: 'ai' }))]
+    return [...(dailyPlan[scenario] ?? []), ...recommendations.map((item) => ({ ...item, type: 'ai' }))]
       .sort((a, b) => parseTime(a.time) - parseTime(b.time));
-  }, [interventions]);
+  }, [recommendations]);
 
   const notifications = useMemo(
     () => buildNotifications({
-      prediction: burnoutPrediction[scenario],
-      calendar: calendarData[scenario],
-      interventions: allInterventions,
+      overload: overloadAnalysis[scenario],
+      calendar: calendarSummary[scenario],
+      recommendations: allRecommendations,
     }),
-    [allInterventions],
+    [allRecommendations],
   );
 
   const titles = {
@@ -90,27 +99,28 @@ export default function App() {
               <Header title={titles[page]} notifications={notifications} />
               {page === 'home' && (
                 <Home
-                  prediction={burnoutPrediction[scenario]}
-                  healthData={healthData[scenario]}
-                  screenData={screenTimeData[scenario]}
+                  overload={overloadAnalysis[scenario]}
+                  health={healthSummary[scenario]}
+                  calendarSummary={calendarSummary[scenario]}
+                  academicTasks={academicTasks}
                   dataSources={dataSourceSummary[scenario]}
                   dayEvents={timelineEvents}
-                  primaryIntervention={primaryIntervention}
-                  secondaryInterventions={secondaryInterventions}
-                  acceptIntervention={acceptIntervention}
-                  moveIntervention={moveIntervention}
-                  delayIntervention={delayIntervention}
-                  dismissIntervention={dismissIntervention}
+                  primaryRecommendation={primaryRecommendation}
+                  secondaryRecommendations={secondaryRecommendations}
+                  acceptRecommendation={acceptRecommendation}
+                  moveRecommendation={moveRecommendation}
+                  delayRecommendation={delayRecommendation}
+                  dismissRecommendation={dismissRecommendation}
                 />
               )}
               {page === 'cal' && (
                 <Calendar
                   events={timelineEvents}
-                  calendarData={calendarData[scenario]}
-                  prediction={burnoutPrediction[scenario]}
-                  primaryIntervention={primaryIntervention}
-                  acceptIntervention={acceptIntervention}
-                  delayIntervention={delayIntervention}
+                  calendarData={calendarSummary[scenario]}
+                  prediction={overloadAnalysis[scenario]}
+                  primaryIntervention={primaryRecommendation}
+                  acceptIntervention={acceptRecommendation}
+                  delayIntervention={delayRecommendation}
                   curY={curY}
                   curM={curM}
                   selD={selD}
@@ -121,11 +131,11 @@ export default function App() {
               )}
               {page === 'anal' && (
                 <Analysis
-                  prediction={burnoutPrediction[scenario]}
+                  overload={overloadAnalysis[scenario]}
                   dataSources={dataSourceSummary[scenario]}
-                  interventions={allInterventions}
-                  dailyEvents={dailyEvents[scenario]}
-                  healthData={healthData[scenario]}
+                  recommendations={allRecommendations}
+                  dailyPlan={dailyPlan[scenario]}
+                  health={healthSummary[scenario]}
                   onGoHome={() => setPage('home')}
                 />
               )}
@@ -140,31 +150,31 @@ export default function App() {
   );
 }
 
-function buildNotifications({ prediction, calendar, interventions }) {
+function buildNotifications({ overload, calendar, recommendations }) {
   const items = [];
 
-  if (calendar.meetingCount >= 6) {
+  if (calendar?.workHours >= 4) {
     items.push({
-      id: 'calendar-density',
-      title: '오늘 회의 밀도가 높습니다.',
-      detail: `${calendar.meetingCount}개 일정과 ${calendar.continuousMeetingBlocks}개 연속 회의 블록이 감지되었습니다.`,
+      id: 'work-overload',
+      title: '오늘 알바 시간이 깁니다.',
+      detail: `알바 ${calendar.workHours}시간으로 시험 준비 시간이 부족합니다.`,
     });
   }
 
-  if (prediction.currentRiskScore >= 61) {
+  if (overload?.currentRiskScore >= 65) {
     items.push({
-      id: 'risk-score',
-      title: '오후 집중 저하 가능성이 높습니다.',
-      detail: `${prediction.predictedPeakRiskTime} 구간 전에 회복 행동을 넣어보세요.`,
+      id: 'overload-score',
+      title: '오늘 일정 과부하 가능성이 높습니다.',
+      detail: `${overload.predictedPeakRiskTime} 구간 전에 AI 추천 일정을 반영해보세요.`,
     });
   }
 
-  interventions
+  recommendations
     .filter((item) => item.snoozeActive && item.status !== 'dismissed')
     .forEach((item) => {
       items.push({
         id: `snooze-${item.id}`,
-        title: '15분 뒤 다시 볼 행동이 있습니다.',
+        title: '15분 뒤 다시 볼 추천 일정이 있습니다.',
         detail: `${item.title} · ${item.time}`,
       });
     });
