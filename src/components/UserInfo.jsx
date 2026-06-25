@@ -2,7 +2,6 @@ import AIProfileHero from './user/AIProfileHero';
 import PersonalRhythmCard from './user/PersonalRhythmCard';
 import PersonalInfoForm from './user/PersonalInfoForm';
 import ConnectedSources from './user/ConnectedSources';
-import PrivacyNotice from './user/PrivacyNotice';
 
 export default function UserInfo() {
   return (
@@ -11,7 +10,6 @@ export default function UserInfo() {
       <PersonalRhythmCard />
       <PersonalInfoForm />
       <ConnectedSources />
-      <PrivacyNotice />
     </main>
   );
 }

@@ -2,16 +2,11 @@ import { useState } from 'react';
 import MiniMonthPicker from './calendar/MiniMonthPicker';
 import DayTimeline from './calendar/DayTimeline';
 import CalendarEmptyState from './calendar/CalendarEmptyState';
-import CalendarRiskActionPanel from './calendar/CalendarRiskActionPanel';
 import { parseTime } from '../utils/time';
 
 export default function Calendar({
   events,
   calendarData,
-  prediction,
-  primaryIntervention,
-  acceptIntervention,
-  delayIntervention,
   curY,
   curM,
   selD,
@@ -19,27 +14,15 @@ export default function Calendar({
   setCurM,
   setSelD,
 }) {
-  const [focusModeOn, setFocusModeOn] = useState(false);
   const isToday = curY === 2026 && curM === 5 && selD === 16;
   const dayEvents = isToday ? events : getMockFutureEvents(selD);
   const sortedEvents = [...dayEvents].sort((a, b) => parseTime(a.time) - parseTime(b.time));
-  const hasRiskWindow = isToday && calendarData.overloadTimeRange.includes('~');
+  const hasRiskWindow = isToday && calendarData?.overloadTimeRange?.includes('~');
   const [riskStart, riskEnd] = hasRiskWindow ? calendarData.overloadTimeRange.split('~') : [null, null];
 
   return (
     <main className="page no-scrollbar h-[calc(100%-112px)] overflow-y-auto pb-24">
       <MiniMonthPicker curY={curY} curM={curM} selD={selD} setCurY={setCurY} setCurM={setCurM} setSelD={setSelD} compact />
-      {isToday && (
-        <CalendarRiskActionPanel
-          prediction={prediction}
-          calendarData={calendarData}
-          intervention={primaryIntervention}
-          focusModeOn={focusModeOn}
-          onAccept={acceptIntervention}
-          onDelay={delayIntervention}
-          onFocusMode={() => setFocusModeOn((prev) => !prev)}
-        />
-      )}
       <section className="mx-4 mb-4 mt-3 rounded-[24px] border border-border bg-card p-3 shadow-sm">
         <div className="flex items-center justify-between px-1 pb-3">
           <div>
@@ -49,8 +32,14 @@ export default function Calendar({
             </h2>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <span className="rounded-full bg-ai-soft px-3 py-1 text-[11px] font-semibold text-ai">{dayEvents.length}개 일정</span>
-            {hasRiskWindow && <span className="rounded-full bg-risk-soft px-3 py-1 text-[11px] font-semibold text-risk">15:00~17:00 위험</span>}
+            <span className="rounded-full bg-ai-soft px-3 py-1 text-[11px] font-semibold text-ai">
+              {dayEvents.length}개 일정
+            </span>
+            {hasRiskWindow && (
+              <span className="rounded-full bg-risk-soft px-3 py-1 text-[11px] font-semibold text-risk">
+                {calendarData.overloadTimeRange} 과부하
+              </span>
+            )}
           </div>
         </div>
         {dayEvents.length === 0 ? (

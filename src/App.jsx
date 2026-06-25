@@ -23,6 +23,7 @@ import Toast from './components/ui/Toast';
 
 const scenario = 'elevated';
 const TOAST_DURATION = 5200;
+const RECALCULATE_DELAY = 1800;
 
 export default function App() {
   const [hasStarted, setHasStarted] = useState(false);
@@ -31,7 +32,9 @@ export default function App() {
   const [curM, setCurM] = useState(5);
   const [selD, setSelD] = useState(16);
   const [toast, setToast] = useState(null);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   const toastTimerRef = useRef(null);
+  const recalcTimerRef = useRef(null);
 
   const closeToast = () => {
     if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
@@ -59,6 +62,16 @@ export default function App() {
     closeToast,
   });
 
+  const handleMoveRecommendation = async (id, newTime) => {
+    await moveRecommendation(id, newTime);
+    setIsRecalculating(true);
+    if (recalcTimerRef.current) window.clearTimeout(recalcTimerRef.current);
+    recalcTimerRef.current = window.setTimeout(() => {
+      setIsRecalculating(false);
+      showToast({ message: 'AI가 나머지 일정을 재설계했습니다.' });
+    }, RECALCULATE_DELAY);
+  };
+
   const timelineEvents = useMemo(() => {
     return [...(dailyPlan[scenario] ?? []), ...recommendations.map((item) => ({ ...item, type: 'ai' }))]
       .sort((a, b) => parseTime(a.time) - parseTime(b.time));
@@ -74,7 +87,7 @@ export default function App() {
   );
 
   const titles = {
-    home: 'RE:Mind',
+    home: 'RE:Plan',
     cal: '캘린더',
     anal: 'AI 분석',
     user: '내 정보',
@@ -105,12 +118,11 @@ export default function App() {
                   calendarSummary={calendarSummary[scenario]}
                   calendarEvents={calendarEvents[scenario]}
                   academicTasks={academicTasks}
-                  dataSources={dataSourceSummary[scenario]}
-                  dayEvents={timelineEvents}
                   primaryRecommendation={primaryRecommendation}
                   secondaryRecommendations={secondaryRecommendations}
+                  isRecalculating={isRecalculating}
                   acceptRecommendation={acceptRecommendation}
-                  moveRecommendation={moveRecommendation}
+                  moveRecommendation={handleMoveRecommendation}
                   delayRecommendation={delayRecommendation}
                   dismissRecommendation={dismissRecommendation}
                 />
@@ -119,10 +131,6 @@ export default function App() {
                 <Calendar
                   events={timelineEvents}
                   calendarData={calendarSummary[scenario]}
-                  prediction={overloadAnalysis[scenario]}
-                  primaryIntervention={primaryRecommendation}
-                  acceptIntervention={acceptRecommendation}
-                  delayIntervention={delayRecommendation}
                   curY={curY}
                   curM={curM}
                   selD={selD}
@@ -132,14 +140,7 @@ export default function App() {
                 />
               )}
               {page === 'anal' && (
-                <Analysis
-                  overload={overloadAnalysis[scenario]}
-                  dataSources={dataSourceSummary[scenario]}
-                  recommendations={allRecommendations}
-                  dailyPlan={dailyPlan[scenario]}
-                  health={healthSummary[scenario]}
-                  onGoHome={() => setPage('home')}
-                />
+                <Analysis overload={overloadAnalysis[scenario]} />
               )}
               {page === 'user' && <UserInfo />}
               <BottomNav page={page} setPage={setPage} />

@@ -6,12 +6,12 @@ export default function AIProfileHero() {
           RE
         </div>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-ai">AI Profile Center</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-ai">RE:Plan Profile</p>
           <h1 className="mt-1 text-[20px] font-semibold leading-snug">AI가 나를 이해하는 방식</h1>
         </div>
       </div>
       <p className="mt-4 text-[13px] leading-relaxed text-white/72">
-        일정, 건강, 스크린 사용 패턴을 함께 읽어 위험 예측과 회복 제안을 개인화합니다.
+        일정, 건강, 학사 정보를 분석해 AI 일정 재설계와 과부하 예방을 개인화합니다.
       </p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         <Metric label="집중 시간" value="09:30" />
